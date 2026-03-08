@@ -358,7 +358,7 @@ Sitemap: https://www.example-clinic.com/sitemap.xml`}
       </section>
 
       {/* 기술 SEO 체크리스트 */}
-      <section className="guide-section">
+      <section id="tech-seo" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">기술 SEO 체크리스트</SectionHeading>
         <div className="guide-card">
           <ul className="space-y-1">
