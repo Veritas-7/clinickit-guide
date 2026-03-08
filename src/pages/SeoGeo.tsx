@@ -15,6 +15,7 @@ function CodeBlock({ title, code, lang = "json" }: { title: string; code: string
 }
 
 export default function SeoGeo() {
+  const { pathname } = useLocation();
   return (
     <div>
       <SectionHeading
