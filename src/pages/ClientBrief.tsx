@@ -315,15 +315,10 @@ export default function ClientBrief() {
 
       {/* Import error state */}
       {importError && (
-        <div className="guide-notice-warning mb-6">
-          <div className="flex items-start gap-2">
-            <XCircle className="h-4 w-4 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm font-semibold">JSON 불러오기 실패</p>
-              <p className="text-sm mt-0.5">{importError}</p>
-              <button onClick={() => setImportError(null)} className="text-xs text-accent underline mt-1">닫기</button>
-            </div>
-          </div>
+        <div className="mb-6">
+          <StatusCard type="error" title="JSON 불러오기 실패" description={importError}>
+            <button onClick={() => setImportError(null)} className="text-xs text-accent underline mt-1">닫기</button>
+          </StatusCard>
         </div>
       )}
 
