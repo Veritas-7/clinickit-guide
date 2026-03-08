@@ -251,6 +251,8 @@ export default function DesignGuide() {
           ))}
         </div>
       </section>
+
+      <PageNavigation currentPath={pathname} />
     </div>
   );
 }
