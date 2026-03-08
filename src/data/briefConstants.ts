@@ -10,7 +10,7 @@ export interface StoredBrief {
   data: BriefData;
 }
 
-/** Normalize brief data: trim strings, filter empty arrays */
+/** Normalize brief data: trim strings, filter empty arrays, validate numbers */
 export function normalizeBriefData(data: BriefData): BriefData {
   const result: BriefData = {};
   for (const [key, value] of Object.entries(data)) {
@@ -25,17 +25,51 @@ export function normalizeBriefData(data: BriefData): BriefData {
   return result;
 }
 
+/** Validate that data looks like a BriefData object */
+export function isValidBriefShape(data: unknown): data is BriefData {
+  if (!data || typeof data !== "object" || Array.isArray(data)) return false;
+  for (const value of Object.values(data as Record<string, unknown>)) {
+    if (typeof value === "string") continue;
+    if (Array.isArray(value) && value.every(v => typeof v === "string")) continue;
+    return false;
+  }
+  return true;
+}
+
+/** Parse and validate stored brief JSON */
+export function parseStoredBrief(raw: string): { brief: StoredBrief | null; error: "invalid_json" | "invalid_shape" | "version_mismatch" | null } {
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return { brief: null, error: "invalid_shape" };
+
+    // Check if it's a StoredBrief with version
+    if (parsed.version && parsed.data) {
+      if (!isValidBriefShape(parsed.data)) return { brief: null, error: "invalid_shape" };
+      if (parsed.version !== BRIEF_SCHEMA_VERSION) {
+        // Still return data but flag mismatch
+        return { brief: { version: parsed.version, updatedAt: parsed.updatedAt || "", data: parsed.data }, error: "version_mismatch" };
+      }
+      return { brief: parsed as StoredBrief, error: null };
+    }
+
+    // Legacy format: plain object
+    if (isValidBriefShape(parsed)) {
+      return { brief: { version: BRIEF_SCHEMA_VERSION, updatedAt: "", data: parsed as BriefData }, error: null };
+    }
+
+    return { brief: null, error: "invalid_shape" };
+  } catch {
+    return { brief: null, error: "invalid_json" };
+  }
+}
+
 /** Load brief from localStorage with schema check */
 export function loadBrief(): BriefData {
   try {
     const stored = localStorage.getItem(BRIEF_STORAGE_KEY);
     if (!stored) return {};
-    const parsed = JSON.parse(stored) as StoredBrief;
-    if (parsed.version === BRIEF_SCHEMA_VERSION) {
-      return parsed.data || {};
-    }
-    // Old format fallback
-    return (parsed as any).data || parsed as unknown as BriefData;
+    const { brief } = parseStoredBrief(stored);
+    return brief?.data ? normalizeBriefData(brief.data) : {};
   } catch {
     return {};
   }
