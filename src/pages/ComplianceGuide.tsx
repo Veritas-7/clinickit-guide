@@ -255,7 +255,7 @@ export default function ComplianceGuide() {
       </section>
 
       {/* 외부 광고 연결 */}
-      <section className="guide-section">
+      <section id="ad-landing" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">외부 광고 랜딩 연결 시 점검 항목</SectionHeading>
         <div className="guide-card">
           <ul className="space-y-1">
