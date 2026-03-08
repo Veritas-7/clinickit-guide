@@ -317,7 +317,7 @@ export default function SeoGeo() {
       </section>
 
       {/* robots.txt */}
-      <section className="guide-section">
+      <section id="robots" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">robots.txt 예시</SectionHeading>
         <CodeBlock
           title="robots.txt"
