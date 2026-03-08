@@ -357,6 +357,8 @@ Sitemap: https://www.example-clinic.com/sitemap.xml`}
           </ul>
         </div>
       </section>
+
+      <PageNavigation currentPath={pathname} />
     </div>
   );
 }

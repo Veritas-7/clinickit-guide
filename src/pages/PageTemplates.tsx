@@ -1,4 +1,6 @@
+import { useLocation } from "react-router-dom";
 import { SectionHeading } from "@/components/SectionHeading";
+import { PageNavigation } from "@/components/PageNavigation";
 import { pageTemplates, type TemplateBlock, type BlockType } from "@/data/templateBlueprints";
 
 const blockTypeLabel: Record<BlockType, { text: string; class: string }> = {

@@ -166,6 +166,8 @@ export default function ContentGuide() {
           </ul>
         </div>
       </section>
+
+      <PageNavigation currentPath={pathname} />
     </div>
   );
 }

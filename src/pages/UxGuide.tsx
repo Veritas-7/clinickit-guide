@@ -229,6 +229,8 @@ export default function UxGuide() {
           </ul>
         </div>
       </section>
+
+      <PageNavigation currentPath={pathname} />
     </div>
   );
 }

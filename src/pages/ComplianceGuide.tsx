@@ -242,6 +242,8 @@ export default function ComplianceGuide() {
           </ul>
         </div>
       </section>
+
+      <PageNavigation currentPath={pathname} />
     </div>
   );
 }

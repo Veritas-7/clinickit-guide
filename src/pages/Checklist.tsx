@@ -1,8 +1,8 @@
+import { useLocation } from "react-router-dom";
 import { SectionHeading } from "@/components/SectionHeading";
+import { PageNavigation } from "@/components/PageNavigation";
 import { Check, Square } from "lucide-react";
 import { useState } from "react";
-
-interface ChecklistSectionProps {
   title: string;
   items: string[];
 }
