@@ -16,6 +16,7 @@ const complianceLabel: Record<string, { text: string; class: string }> = {
 };
 
 export default function PageTemplates() {
+  const { pathname } = useLocation();
   return (
     <div>
       <SectionHeading
