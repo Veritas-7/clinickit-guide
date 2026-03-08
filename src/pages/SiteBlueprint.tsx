@@ -1,7 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { CopyBlock } from "@/components/CopyBlock";
+import { BlueprintCard } from "@/components/BlueprintCard";
 import { PageNavigation } from "@/components/PageNavigation";
+import { PageToc, type TocItem } from "@/components/PageToc";
+import { StatusCard } from "@/components/StatusCard";
 import { Link, useLocation } from "react-router-dom";
 import { BriefData, loadBrief, inferSiteType, hasOnlineBooking } from "@/data/briefConstants";
 import { pageTemplates } from "@/data/templateBlueprints";
@@ -40,6 +43,22 @@ function getRecommendedPages(data: BriefData): { required: string[]; optional: s
   return { required, optional, removable, forbidden };
 }
 
+const tocItems: TocItem[] = [
+  { id: "site-type", label: "추천 사이트 유형" },
+  { id: "cta-priority", label: "핵심 CTA 우선순위" },
+  { id: "page-structure", label: "추천 페이지 구조" },
+  { id: "homepage-blocks", label: "추천 홈페이지 블록 순서" },
+  { id: "page-blocks", label: "페이지별 블록 구조" },
+  { id: "mobile-cta", label: "모바일 고정 CTA" },
+  { id: "trust-elements", label: "신뢰 요소 현황" },
+  { id: "hero-example", label: "추천 히어로 구조" },
+  { id: "seo-structure", label: "추천 SEO 구조" },
+  { id: "microcopy", label: "예시 마이크로카피" },
+  { id: "compliance", label: "컴플라이언스 검토" },
+  { id: "lovable-prompt", label: "공개용 사이트 생성 프롬프트" },
+  { id: "jsonld-templates", label: "JSON-LD 템플릿" },
+];
+
 export default function SiteBlueprint() {
   const [data, setData] = useState<BriefData>({});
   const { pathname } = useLocation();
@@ -62,8 +81,6 @@ export default function SiteBlueprint() {
 
   const metaTitle = `${hospitalName} | ${region} ${depts[0] || "내과"} 전문의 진료`;
   const metaDesc = `${region} ${depts.slice(0, 2).join(", ")} 전문의가 진료하는 ${hospitalName}. 진료시간, 오시는 길, ${hasOnline ? "온라인 예약" : "전화 문의"} 안내.`;
-
-  const allTemplateIds = ["homepage", "departments", "symptoms", "doctors", "about", "visit-info", "location", "reservation", "faq", "notice", "non-covered"];
 
   const lovablePrompt = `병원/의원 홈페이지를 만들어줘.
 
@@ -113,23 +130,34 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
   jsonLdTypes.push("FAQPage");
   if ((data.blogColumn as string) === "운영") jsonLdTypes.push("Article");
 
-  const blockTypeLabel = { required: "필수", optional: "선택", conditional: "조건부", forbidden: "금지" } as const;
-  const blockTypeBadge = { required: "guide-badge-success", optional: "guide-badge-info", conditional: "guide-badge-warning", forbidden: "guide-badge-emergency" } as const;
-
   return (
     <div>
       <SectionHeading tag="h1" sub="고객사 브리프 기반으로 공개용 병원/의원 사이트의 구조, CTA, SEO, 산출물을 자동 도출합니다.">
         사이트 블루프린트
       </SectionHeading>
 
-      {!hasBrief && (
-        <div className="guide-notice-warning mb-8">
-          <p className="text-sm"><AlertTriangle className="h-4 w-4 inline mr-1" />브리프 데이터가 없습니다. <Link to="/client-brief" className="text-accent underline font-medium">고객사 브리프</Link>를 먼저 작성하세요.</p>
+      {/* 핵심 요약 */}
+      {hasBrief && (
+        <div className="guide-notice-info mb-6">
+          <p className="text-sm font-semibold mb-1">📋 핵심 요약</p>
+          <ul className="text-sm space-y-0.5">
+            <li>• <strong>{hospitalName}</strong> · {region} · {siteType}</li>
+            <li>• 필수 페이지 {pages.required.length}개, CTA 1순위: {hasOnline ? "온라인 예약" : "전화 문의"}</li>
+            <li>• JSON-LD: {jsonLdTypes.join(", ")}</li>
+          </ul>
         </div>
       )}
 
+      {!hasBrief && (
+        <StatusCard type="warning" title="브리프 데이터가 없습니다" description="고객사 브리프를 먼저 작성하면 맞춤 블루프린트가 생성됩니다.">
+          <Link to="/client-brief" className="text-accent underline text-sm font-medium">고객사 브리프 작성하기 →</Link>
+        </StatusCard>
+      )}
+
+      <PageToc items={tocItems} />
+
       {/* 사이트 유형 */}
-      <section className="guide-section">
+      <section id="site-type" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">추천 사이트 유형</SectionHeading>
         <div className="guide-card-accent">
           <div className="flex items-center gap-3 mb-3">
@@ -152,7 +180,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
       </section>
 
       {/* CTA */}
-      <section className="guide-section">
+      <section id="cta-priority" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">핵심 CTA 우선순위</SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {(hasOnline
@@ -169,7 +197,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
       </section>
 
       {/* 페이지 구조 */}
-      <section className="guide-section">
+      <section id="page-structure" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">추천 페이지 구조</SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
@@ -187,7 +215,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
       </section>
 
       {/* 홈페이지 블록 순서 */}
-      <section className="guide-section">
+      <section id="homepage-blocks" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">추천 홈페이지 블록 순서</SectionHeading>
         <div className="guide-card">
           <ol className="space-y-2">
@@ -201,45 +229,19 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
         </div>
       </section>
 
-      {/* 페이지별 블록 구조 - 전체 출력 */}
-      <section className="guide-section">
+      {/* 페이지별 블록 구조 - 표준화된 BlueprintCard */}
+      <section id="page-blocks" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">페이지별 블록 구조</SectionHeading>
-        <div className="space-y-4">
-          {allTemplateIds.map(id => {
-            const t = pageTemplates.find(pt => pt.id === id);
-            if (!t) return null;
-            return (
-              <details key={id} className="guide-card group">
-                <summary className="cursor-pointer flex items-center gap-2 text-sm font-semibold text-card-foreground">
-                  <span>{t.emoji}</span> {t.name}
-                  <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-90" />
-                </summary>
-                <div className="mt-3 space-y-2">
-                  {t.blocks.map((b, bi) => (
-                    <div key={bi} className="flex items-start gap-2 text-sm py-1.5 border-b border-border/30 last:border-0">
-                      <span className={`${blockTypeBadge[b.type]} text-[10px] flex-shrink-0 mt-0.5`}>{blockTypeLabel[b.type]}</span>
-                      <div>
-                        <span className="font-medium text-card-foreground">{b.title}</span>
-                        <span className="text-muted-foreground ml-2">{b.purpose}</span>
-                        {b.photoFallback && !hasFacilityPhotos && <p className="text-[11px] text-warning mt-0.5">📷 사진 없음 대체: {b.photoFallback}</p>}
-                        {b.noBookingFallback && !hasOnline && <p className="text-[11px] text-info mt-0.5">📅 예약 없음 대체: {b.noBookingFallback}</p>}
-                      </div>
-                    </div>
-                  ))}
-                  <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2">
-                    <span>CTA: <strong className="text-card-foreground">{t.primaryCTA}</strong></span>
-                    <span>모바일: {t.mobileRule}</span>
-                    {t.compliancePoints.length > 0 && <span>⚖️ {t.compliancePoints[0]}</span>}
-                  </div>
-                </div>
-              </details>
-            );
-          })}
+        <p className="text-sm text-muted-foreground mb-4">각 카드를 펼치면 필수/선택/조건부/금지 블록, CTA, 신뢰 요소, 모바일 규칙, SEO, 컴플라이언스, 대체안이 통일된 형식으로 표시됩니다.</p>
+        <div className="space-y-3">
+          {pageTemplates.map(t => (
+            <BlueprintCard key={t.id} template={t} hasFacilityPhotos={hasFacilityPhotos} hasOnlineBooking={hasOnline} />
+          ))}
         </div>
       </section>
 
       {/* 모바일 고정 CTA */}
-      <section className="guide-section">
+      <section id="mobile-cta" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2"><Smartphone className="h-5 w-5 inline mr-1" />모바일 고정 CTA</SectionHeading>
         <div className="guide-card">
           <div className="flex gap-2 justify-center">
@@ -249,12 +251,12 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
               </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground text-center mt-2">모바일 하단 고정 바 예시 — 예시 데이터</p>
+          <p className="text-xs text-muted-foreground text-center mt-2">모바일 하단 고정 바 예시</p>
         </div>
       </section>
 
       {/* 신뢰 요소 */}
-      <section className="guide-section">
+      <section id="trust-elements" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">신뢰 요소 현황</SectionHeading>
         <div className="guide-card">
           <ul className="space-y-2 text-sm">
@@ -270,11 +272,11 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
       </section>
 
       {/* 히어로 예시 */}
-      <section className="guide-section">
+      <section id="hero-example" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">추천 히어로 구조</SectionHeading>
         <div className="guide-card">
           <div className="bg-primary rounded-lg p-6 text-primary-foreground mb-3">
-            <p className="text-xs opacity-60 mb-2">히어로 예시 — 예시 데이터</p>
+            <p className="text-xs opacity-60 mb-2">히어로 예시</p>
             <h3 className="text-xl font-bold mb-1">
               {depts.length > 0 ? `${depts.slice(0, 2).join(" · ")} 전문의 진료` : "전문의가 함께하는 건강한 일상"}
             </h3>
@@ -289,7 +291,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
       </section>
 
       {/* SEO */}
-      <section className="guide-section">
+      <section id="seo-structure" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2"><Search className="h-5 w-5 inline mr-1" />추천 SEO 구조</SectionHeading>
         <div className="space-y-3">
           <div className="guide-card">
@@ -318,7 +320,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
       </section>
 
       {/* 마이크로카피 */}
-      <section className="guide-section">
+      <section id="microcopy" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">예시 마이크로카피</SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
@@ -341,7 +343,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
       </section>
 
       {/* 컴플라이언스 */}
-      <section className="guide-section">
+      <section id="compliance" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2"><ShieldCheck className="h-5 w-5 inline mr-1" />컴플라이언스 검토 포인트</SectionHeading>
         <div className="guide-notice-review">
           <ul className="space-y-1.5 text-sm">
@@ -356,14 +358,14 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
       </section>
 
       {/* Lovable 프롬프트 */}
-      <section className="guide-section">
+      <section id="lovable-prompt" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2"><FileText className="h-5 w-5 inline mr-1" />공개용 사이트 생성 프롬프트</SectionHeading>
         <p className="text-sm text-muted-foreground mb-3">고객사 정보가 반영된 Lovable용 프롬프트입니다. 복사하여 새 프로젝트에서 바로 사용하세요.</p>
         <CopyBlock content={lovablePrompt} label="Lovable 프롬프트" language="prompt" />
       </section>
 
       {/* JSON-LD 템플릿 */}
-      <section className="guide-section">
+      <section id="jsonld-templates" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">JSON-LD 템플릿</SectionHeading>
         <div className="space-y-3">
           <CopyBlock

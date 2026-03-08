@@ -22,10 +22,10 @@ export interface RouteMeta {
   ogImage?: string;
   keywords?: string[];
   noindex?: boolean;
-  robots?: string;
-  schemaType?: SchemaType;
+  robots: string;
+  schemaType: SchemaType;
   jsonLd?: Record<string, unknown>;
-  breadcrumb?: BreadcrumbItem[];
+  breadcrumb: BreadcrumbItem[];
   hasFaq?: boolean;
 }
 
