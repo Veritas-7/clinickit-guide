@@ -39,10 +39,23 @@ export default function ComplianceGuide() {
         컴플라이언스 가이드
       </SectionHeading>
 
-      <div className="guide-notice-review mb-8">
+      {/* 핵심 요약 */}
+      <div className="guide-notice-review mb-6">
         <p className="text-sm font-semibold">⚠️ 면책 안내</p>
         <p className="text-sm mt-1">이 가이드는 실무자가 "어디를 반드시 검토받아야 하는지" 한눈에 이해하도록 구조화한 것입니다. 법률 자문을 대체하지 않으며, 최종 법률 검토는 전문가에게 의뢰해야 합니다.</p>
       </div>
+
+      <div className="guide-notice-info mb-6">
+        <p className="text-sm font-semibold mb-1">📋 빠른 적용 포인트</p>
+        <ul className="text-sm space-y-0.5">
+          <li>• 의료광고 사전심의 대상 여부를 반드시 확인</li>
+          <li>• "최고/최초/유일" 등 비교·단정 표현 사용 금지</li>
+          <li>• 비급여 가격 고지는 필수, 이벤트 표현은 제한적</li>
+          <li>• 환자 후기/전후 사진은 가장 높은 검토 수준 적용</li>
+        </ul>
+      </div>
+
+      <PageToc items={tocItems} />
 
       {/* 빠른 요약 보드 */}
       <div className="guide-notice-info mb-8">
