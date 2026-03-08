@@ -229,7 +229,7 @@ export default function ComplianceGuide() {
       </section>
 
       {/* 운영 중 재검토 */}
-      <section className="guide-section">
+      <section id="recheck" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">운영 중 콘텐츠 수정 시 재검토 포인트</SectionHeading>
         <div className="overflow-x-auto">
           <table className="guide-table">
