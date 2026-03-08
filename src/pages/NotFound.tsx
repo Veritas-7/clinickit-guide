@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Home, ClipboardList, FileText, Search } from "lucide-react";
+import { Home, ClipboardList, Map, CheckSquare } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -35,15 +35,15 @@ const NotFound = () => {
             <p className="text-xs text-muted-foreground">프로젝트 시작</p>
           </div>
         </Link>
-        <Link to="/design-guide" className="guide-card flex items-center gap-3 hover:border-accent transition-colors">
-          <FileText className="h-5 w-5 text-accent" />
+        <Link to="/site-blueprint" className="guide-card flex items-center gap-3 hover:border-accent transition-colors">
+          <Map className="h-5 w-5 text-accent" />
           <div className="text-left">
-            <p className="text-sm font-medium text-card-foreground">디자인 가이드</p>
-            <p className="text-xs text-muted-foreground">디자인 시스템</p>
+            <p className="text-sm font-medium text-card-foreground">사이트 블루프린트</p>
+            <p className="text-xs text-muted-foreground">구조 자동 설계</p>
           </div>
         </Link>
         <Link to="/checklist" className="guide-card flex items-center gap-3 hover:border-accent transition-colors">
-          <Search className="h-5 w-5 text-accent" />
+          <CheckSquare className="h-5 w-5 text-accent" />
           <div className="text-left">
             <p className="text-sm font-medium text-card-foreground">체크리스트</p>
             <p className="text-xs text-muted-foreground">실무 점검</p>

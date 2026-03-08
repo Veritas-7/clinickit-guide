@@ -1,9 +1,12 @@
-// 라우트별 SEO 메타데이터 설정
+// 라우트별 SEO 메타데이터 설정 — 단일 도메인 상수 기반
 export const BASE_URL = "https://medical-guide.example.com";
 export const SITE_NAME = "병원/의원 웹사이트 제작 가이드";
 export const DEFAULT_OG_IMAGE = "/og-image.png";
 
-export type SchemaType = "WebSite" | "WebPage" | "FAQPage" | "Article" | "CollectionPage" | "HowTo";
+export type SchemaType =
+  | "WebSite" | "WebPage" | "FAQPage" | "Article"
+  | "CollectionPage" | "HowTo" | "ProfilePage"
+  | "MedicalBusiness" | "Physician";
 
 export interface BreadcrumbItem {
   name: string;
@@ -19,12 +22,10 @@ export interface RouteMeta {
   ogImage?: string;
   keywords?: string[];
   noindex?: boolean;
-  /** robots directives — defaults to "index, follow" */
   robots?: string;
   schemaType?: SchemaType;
   jsonLd?: Record<string, unknown>;
   breadcrumb?: BreadcrumbItem[];
-  /** Whether this page has FAQ content eligible for FAQPage JSON-LD */
   hasFaq?: boolean;
 }
 
@@ -69,7 +70,7 @@ export const routeMeta: Record<string, RouteMeta> = {
     title: "UI 가이드 | 병원/의원 UI 컴포넌트 패턴",
     description: "병원/의원 사이트의 핵심 UI 패턴: Quick Info Bar, 히어로, 진료과목 카드, 의료진 카드, CTA, FAQ, 모바일 고정 바 등.",
     keywords: ["병원 UI 패턴", "의원 컴포넌트", "의료기관 CTA"],
-    schemaType: "WebPage",
+    schemaType: "CollectionPage",
     robots: "index, follow",
     breadcrumb: guideBreadcrumb("UI 가이드", "/ui-guide"),
   },
@@ -151,7 +152,7 @@ export const routeMeta: Record<string, RouteMeta> = {
   },
 };
 
-// 404/기타 페이지용 fallback
+/** 404/기타 페이지용 fallback — routeMeta와 동일한 구조 */
 export const fallbackMeta: RouteMeta = {
   title: "페이지를 찾을 수 없습니다 | 병원/의원 웹사이트 제작 가이드",
   description: "요청하신 페이지를 찾을 수 없습니다. 가이드 홈 또는 주요 문서로 이동하세요.",
@@ -160,6 +161,7 @@ export const fallbackMeta: RouteMeta = {
   ogTitle: "페이지를 찾을 수 없습니다",
   ogDescription: "요청하신 페이지가 존재하지 않습니다.",
   schemaType: "WebPage",
+  breadcrumb: [{ name: "홈", url: "/" }, { name: "404", url: "" }],
 };
 
 // JSON-LD 템플릿들 (공개용 사이트에서 사용)

@@ -1,4 +1,4 @@
-// Brief storage constants
+// Brief storage constants & utilities — single source of truth
 export const BRIEF_STORAGE_KEY = "clientBrief";
 export const BRIEF_SCHEMA_VERSION = "1.0";
 
@@ -36,17 +36,18 @@ export function isValidBriefShape(data: unknown): data is BriefData {
   return true;
 }
 
+export type ParseError = "invalid_json" | "invalid_shape" | "version_mismatch" | null;
+
 /** Parse and validate stored brief JSON */
-export function parseStoredBrief(raw: string): { brief: StoredBrief | null; error: "invalid_json" | "invalid_shape" | "version_mismatch" | null } {
+export function parseStoredBrief(raw: string): { brief: StoredBrief | null; error: ParseError } {
   try {
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== "object") return { brief: null, error: "invalid_shape" };
 
-    // Check if it's a StoredBrief with version
+    // StoredBrief with version
     if (parsed.version && parsed.data) {
       if (!isValidBriefShape(parsed.data)) return { brief: null, error: "invalid_shape" };
       if (parsed.version !== BRIEF_SCHEMA_VERSION) {
-        // Still return data but flag mismatch
         return { brief: { version: parsed.version, updatedAt: parsed.updatedAt || "", data: parsed.data }, error: "version_mismatch" };
       }
       return { brief: parsed as StoredBrief, error: null };
@@ -75,7 +76,7 @@ export function loadBrief(): BriefData {
   }
 }
 
-/** Save brief to localStorage */
+/** Save brief to localStorage — returns stored object or throws */
 export function saveBrief(data: BriefData): StoredBrief {
   const stored: StoredBrief = {
     version: BRIEF_SCHEMA_VERSION,
@@ -106,4 +107,22 @@ export function inferSiteType(data: BriefData): { type: string; reasons: string[
 export function hasOnlineBooking(data: BriefData): boolean {
   const booking = (data.bookingMethod as string[]) || [];
   return booking.some(b => b.includes("온라인") || b.includes("네이버") || b.includes("카카오"));
+}
+
+/** Get required field IDs */
+export function getRequiredFieldIds(): string[] {
+  return [
+    "hospitalName", "institutionType", "departments", "region", "address",
+    "phone", "parking", "weekdayHours", "saturdayHours", "closedDays",
+    "bookingMethod", "doctorCount", "doctorInfoReady", "ctaPriority", "requiredPages",
+  ];
+}
+
+/** Count how many brief fields have values */
+export function countFilledFields(data: BriefData, fieldIds: string[]): number {
+  return fieldIds.filter(id => {
+    const v = data[id];
+    if (Array.isArray(v)) return v.length > 0;
+    return v && String(v).trim() !== "";
+  }).length;
 }

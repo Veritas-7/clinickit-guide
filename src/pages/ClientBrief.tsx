@@ -5,10 +5,11 @@ import { briefFields, briefGroups } from "@/data/clientBriefFields";
 import {
   BriefData, StoredBrief, BRIEF_STORAGE_KEY, BRIEF_SCHEMA_VERSION,
   normalizeBriefData, loadBrief, saveBrief, inferSiteType, hasOnlineBooking,
+  parseStoredBrief, isValidBriefShape,
 } from "@/data/briefConstants";
 import { Link, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Download, Upload, RotateCcw, Sparkles, Save, AlertTriangle, CheckCircle2, ChevronRight } from "lucide-react";
+import { Copy, Download, Upload, RotateCcw, Sparkles, Save, AlertTriangle, CheckCircle2, ChevronRight, XCircle } from "lucide-react";
 
 const exampleData: BriefData = {
   hospitalName: "서울좋은내과의원",
@@ -41,10 +42,13 @@ const exampleData: BriefData = {
   restrictions: "타 병원 비교 금지, 치료 성공률 수치 표기 금지",
 };
 
+type SaveStatus = "idle" | "saving" | "saved" | "failed";
+
 export default function ClientBrief() {
   const [data, setData] = useState<BriefData>({});
   const [lastSaved, setLastSaved] = useState<string | null>(null);
-  const [importError, setImportError] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { toast } = useToast();
   const { pathname } = useLocation();
@@ -54,13 +58,15 @@ export default function ClientBrief() {
     try {
       const stored = localStorage.getItem(BRIEF_STORAGE_KEY);
       if (stored) {
-        const parsed = JSON.parse(stored) as StoredBrief;
-        if (parsed.version === BRIEF_SCHEMA_VERSION) {
-          setData(parsed.data);
-          setLastSaved(parsed.updatedAt);
-        } else {
-          toast({ title: "스키마 버전 불일치", description: `저장된 데이터(v${parsed.version || "?"})가 현재 버전(v${BRIEF_SCHEMA_VERSION})과 다릅니다. 데이터를 불러왔지만 일부 필드가 누락될 수 있습니다.`, variant: "destructive" });
-          setData(parsed.data || (parsed as unknown as BriefData));
+        const { brief, error } = parseStoredBrief(stored);
+        if (brief) {
+          setData(normalizeBriefData(brief.data));
+          setLastSaved(brief.updatedAt || null);
+          if (error === "version_mismatch") {
+            toast({ title: "스키마 버전 불일치", description: `저장된 데이터(v${brief.version})가 현재 버전(v${BRIEF_SCHEMA_VERSION})과 다릅니다. 가능한 필드만 불러왔습니다.`, variant: "destructive" });
+          }
+        } else if (error === "invalid_json" || error === "invalid_shape") {
+          toast({ title: "저장된 브리프 로드 실패", description: "손상된 데이터를 무시합니다.", variant: "destructive" });
         }
       }
     } catch { /* ignore */ }
@@ -72,9 +78,14 @@ export default function ClientBrief() {
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(() => {
       try {
+        setSaveStatus("saving");
         const stored = saveBrief(data);
         setLastSaved(stored.updatedAt);
-      } catch { /* silent */ }
+        setSaveStatus("saved");
+        setTimeout(() => setSaveStatus("idle"), 3000);
+      } catch {
+        setSaveStatus("failed");
+      }
     }, 2000);
     return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
   }, [data]);
@@ -91,10 +102,14 @@ export default function ClientBrief() {
 
   const handleSave = useCallback(() => {
     try {
+      setSaveStatus("saving");
       const stored = saveBrief(data);
       setLastSaved(stored.updatedAt);
+      setSaveStatus("saved");
       toast({ title: "저장 완료", description: "브리프가 저장되었습니다." });
+      setTimeout(() => setSaveStatus("idle"), 3000);
     } catch {
+      setSaveStatus("failed");
       toast({ title: "저장 실패", description: "브라우저 저장소에 저장할 수 없습니다.", variant: "destructive" });
     }
   }, [data, toast]);
@@ -103,6 +118,8 @@ export default function ClientBrief() {
     if (confirm("모든 입력을 초기화하시겠습니까?")) {
       setData({});
       setLastSaved(null);
+      setSaveStatus("idle");
+      setImportError(null);
       localStorage.removeItem(BRIEF_STORAGE_KEY);
       toast({ title: "초기화 완료" });
     }
@@ -110,6 +127,7 @@ export default function ClientBrief() {
 
   const handleFillExample = () => {
     setData(exampleData);
+    setImportError(null);
     toast({ title: "예시 데이터 채움", description: "예시 데이터가 입력되었습니다. 자동 저장됩니다." });
   };
 
@@ -126,7 +144,7 @@ export default function ClientBrief() {
   };
 
   const handleImportJSON = () => {
-    setImportError(false);
+    setImportError(null);
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".json";
@@ -135,19 +153,26 @@ export default function ClientBrief() {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (ev) => {
-        try {
-          const parsed = JSON.parse(ev.target?.result as string) as StoredBrief;
-          if (!parsed.data || typeof parsed.data !== "object") throw new Error("Invalid");
-          if (parsed.version && parsed.version !== BRIEF_SCHEMA_VERSION) {
-            toast({ title: "스키마 버전 다름", description: `파일 버전(v${parsed.version})이 다릅니다. 가능한 필드만 불러옵니다.` });
-          }
-          setData(parsed.data);
-          setImportError(false);
-          toast({ title: "불러오기 완료", description: `${file.name}에서 브리프를 불러왔습니다.` });
-        } catch {
-          setImportError(true);
+        const raw = ev.target?.result as string;
+        const { brief, error } = parseStoredBrief(raw);
+
+        if (error === "invalid_json") {
+          setImportError("유효한 JSON 파일이 아닙니다.");
           toast({ title: "불러오기 실패", description: "유효한 JSON 파일이 아닙니다.", variant: "destructive" });
+          return;
         }
+        if (error === "invalid_shape" || !brief) {
+          setImportError("브리프 형식에 맞지 않는 데이터입니다. { version, data: {...} } 형식이어야 합니다.");
+          toast({ title: "불러오기 실패", description: "올바른 브리프 형식이 아닙니다.", variant: "destructive" });
+          return;
+        }
+        if (error === "version_mismatch") {
+          toast({ title: "스키마 버전 다름", description: `파일 버전(v${brief.version})이 현재(v${BRIEF_SCHEMA_VERSION})와 다릅니다. 가능한 필드만 불러옵니다.` });
+        }
+
+        setData(normalizeBriefData(brief.data));
+        setImportError(null);
+        toast({ title: "불러오기 완료", description: `${file.name}에서 브리프를 불러왔습니다.` });
       };
       reader.readAsText(file);
     };
@@ -172,7 +197,8 @@ export default function ClientBrief() {
   });
 
   const siteTypePreview = useMemo(() => inferSiteType(data), [data]);
-  const hasBrief = filledCount > 0;
+
+  const saveStatusText = saveStatus === "saving" ? "저장 중..." : saveStatus === "saved" ? "자동 저장됨" : saveStatus === "failed" ? "저장 실패" : "";
 
   return (
     <div>
@@ -183,7 +209,7 @@ export default function ClientBrief() {
         고객사 브리프
       </SectionHeading>
 
-      {/* 요약 대시보드 - 항상 표시 */}
+      {/* 요약 대시보드 */}
       <div className="guide-card-accent mb-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-sm">
           <div>
@@ -251,9 +277,19 @@ export default function ClientBrief() {
             <div className="w-full bg-secondary rounded-full h-2">
               <div className="h-2 rounded-full transition-all" style={{ width: `${(filledCount / briefFields.length) * 100}%`, background: "hsl(var(--accent))" }} />
             </div>
-            {lastSaved && (
-              <p className="text-[11px] text-muted-foreground mt-1">마지막 저장: {new Date(lastSaved).toLocaleString("ko-KR")} · 자동 저장 활성</p>
-            )}
+            <div className="flex items-center justify-between mt-1">
+              {lastSaved && (
+                <p className="text-[11px] text-muted-foreground">
+                  마지막 저장: {new Date(lastSaved).toLocaleString("ko-KR")}
+                  {saveStatus === "failed" && <span className="text-emergency ml-1">· 자동 저장 실패</span>}
+                  {saveStatus === "saving" && <span className="text-info ml-1">· 저장 중...</span>}
+                  {saveStatus === "saved" && <span className="text-success ml-1">· 자동 저장됨</span>}
+                </p>
+              )}
+              {!lastSaved && saveStatusText && (
+                <p className={`text-[11px] ${saveStatus === "failed" ? "text-emergency" : "text-muted-foreground"}`}>{saveStatusText}</p>
+              )}
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -279,7 +315,14 @@ export default function ClientBrief() {
       {/* Import error state */}
       {importError && (
         <div className="guide-notice-warning mb-6">
-          <p className="text-sm"><AlertTriangle className="h-3.5 w-3.5 inline" /> JSON 불러오기에 실패했습니다. 올바른 형식의 브리프 JSON 파일인지 확인하세요.</p>
+          <div className="flex items-start gap-2">
+            <XCircle className="h-4 w-4 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold">JSON 불러오기 실패</p>
+              <p className="text-sm mt-0.5">{importError}</p>
+              <button onClick={() => setImportError(null)} className="text-xs text-accent underline mt-1">닫기</button>
+            </div>
+          </div>
         </div>
       )}
 

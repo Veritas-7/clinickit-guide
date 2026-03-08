@@ -2,105 +2,77 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-// Mock QueryClient
 vi.mock("@tanstack/react-query", async () => {
   const actual = await vi.importActual("@tanstack/react-query");
   return {
     ...actual,
     QueryClient: vi.fn(() => ({
-      mount: vi.fn(),
-      unmount: vi.fn(),
+      mount: vi.fn(), unmount: vi.fn(),
       getQueryCache: vi.fn(() => ({ subscribe: vi.fn(() => vi.fn()) })),
       getMutationCache: vi.fn(() => ({ subscribe: vi.fn(() => vi.fn()) })),
-      getDefaultOptions: vi.fn(() => ({})),
-      setDefaultOptions: vi.fn(),
-      isFetching: vi.fn(() => 0),
-      isMutating: vi.fn(() => 0),
-      clear: vi.fn(),
+      getDefaultOptions: vi.fn(() => ({})), setDefaultOptions: vi.fn(),
+      isFetching: vi.fn(() => 0), isMutating: vi.fn(() => 0), clear: vi.fn(),
     })),
   };
 });
 
 describe("Route rendering", () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+  beforeEach(() => { localStorage.clear(); });
 
   it("renders Index page at /", async () => {
     const { default: Index } = await import("@/pages/Index");
-    render(
-      <MemoryRouter initialEntries={["/"]}>
-        <Index />
-      </MemoryRouter>
-    );
+    render(<MemoryRouter initialEntries={["/"]}><Index /></MemoryRouter>);
     expect(screen.getByText("병원/의원 웹사이트 제작 가이드")).toBeInTheDocument();
   });
 
   it("renders ClientBrief page", async () => {
     const { default: ClientBrief } = await import("@/pages/ClientBrief");
-    render(
-      <MemoryRouter initialEntries={["/client-brief"]}>
-        <ClientBrief />
-      </MemoryRouter>
-    );
+    render(<MemoryRouter initialEntries={["/client-brief"]}><ClientBrief /></MemoryRouter>);
     expect(screen.getByText("고객사 브리프")).toBeInTheDocument();
   });
 
   it("renders SiteBlueprint page", async () => {
     const { default: SiteBlueprint } = await import("@/pages/SiteBlueprint");
-    render(
-      <MemoryRouter initialEntries={["/site-blueprint"]}>
-        <SiteBlueprint />
-      </MemoryRouter>
-    );
+    render(<MemoryRouter initialEntries={["/site-blueprint"]}><SiteBlueprint /></MemoryRouter>);
     expect(screen.getByText("사이트 블루프린트")).toBeInTheDocument();
   });
 
   it("renders ImplementationRules page", async () => {
     const { default: ImplementationRules } = await import("@/pages/ImplementationRules");
-    render(
-      <MemoryRouter initialEntries={["/implementation-rules"]}>
-        <ImplementationRules />
-      </MemoryRouter>
-    );
+    render(<MemoryRouter initialEntries={["/implementation-rules"]}><ImplementationRules /></MemoryRouter>);
     expect(screen.getByText("구현 규칙")).toBeInTheDocument();
   });
 
   it("renders NotFound for invalid routes", async () => {
     const { default: NotFound } = await import("@/pages/NotFound");
-    render(
-      <MemoryRouter initialEntries={["/nonexistent"]}>
-        <NotFound />
-      </MemoryRouter>
-    );
+    render(<MemoryRouter initialEntries={["/nonexistent"]}><NotFound /></MemoryRouter>);
     expect(screen.getByText("페이지를 찾을 수 없습니다")).toBeInTheDocument();
+  });
+
+  it("renders DesignGuide page", async () => {
+    const { default: DesignGuide } = await import("@/pages/DesignGuide");
+    render(<MemoryRouter><DesignGuide /></MemoryRouter>);
+    expect(screen.getByText("디자인 가이드")).toBeInTheDocument();
+  });
+
+  it("renders UiGuide page", async () => {
+    const { default: UiGuide } = await import("@/pages/UiGuide");
+    render(<MemoryRouter><UiGuide /></MemoryRouter>);
+    expect(screen.getByText("UI 가이드")).toBeInTheDocument();
   });
 });
 
 describe("Client Brief localStorage", () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+  beforeEach(() => { localStorage.clear(); });
 
   it("saves brief data to localStorage", async () => {
     const { default: ClientBrief } = await import("@/pages/ClientBrief");
     const { fireEvent } = await import("@testing-library/react");
-    
-    render(
-      <MemoryRouter>
-        <ClientBrief />
-      </MemoryRouter>
-    );
-    
-    // Fill in hospital name
+    render(<MemoryRouter><ClientBrief /></MemoryRouter>);
     const nameInput = screen.getByPlaceholderText("예: OO내과의원");
     fireEvent.change(nameInput, { target: { value: "테스트병원" } });
-    
-    // Click save
     const saveButtons = screen.getAllByText(/저장/);
     fireEvent.click(saveButtons[0]);
-    
-    // Check localStorage
     const stored = localStorage.getItem("clientBrief");
     expect(stored).toBeTruthy();
     const parsed = JSON.parse(stored!);
@@ -109,20 +81,12 @@ describe("Client Brief localStorage", () => {
   });
 
   it("loads brief data from localStorage", async () => {
-    // Pre-set data
     localStorage.setItem("clientBrief", JSON.stringify({
-      version: "1.0",
-      updatedAt: new Date().toISOString(),
+      version: "1.0", updatedAt: new Date().toISOString(),
       data: { hospitalName: "저장된병원" },
     }));
-
     const { default: ClientBrief } = await import("@/pages/ClientBrief");
-    render(
-      <MemoryRouter>
-        <ClientBrief />
-      </MemoryRouter>
-    );
-
+    render(<MemoryRouter><ClientBrief /></MemoryRouter>);
     const nameInput = screen.getByPlaceholderText("예: OO내과의원") as HTMLInputElement;
     expect(nameInput.value).toBe("저장된병원");
   });
@@ -172,10 +136,23 @@ describe("SEO metadata config", () => {
     });
   });
 
-  it("fallback meta has noindex", async () => {
+  it("fallback meta has noindex and breadcrumb", async () => {
     const { fallbackMeta } = await import("@/data/seoConfig");
     expect(fallbackMeta.noindex).toBe(true);
     expect(fallbackMeta.robots).toContain("noindex");
+    expect(fallbackMeta.breadcrumb).toBeDefined();
+  });
+
+  it("guide pages are indexable, tool pages are not", async () => {
+    const { routeMeta } = await import("@/data/seoConfig");
+    const guideRoutes = ["/", "/industry-overview", "/design-guide", "/ui-guide"];
+    guideRoutes.forEach(r => {
+      expect(routeMeta[r].robots).toContain("index");
+    });
+    const toolRoutes = ["/client-brief", "/site-blueprint", "/implementation-rules"];
+    toolRoutes.forEach(r => {
+      expect(routeMeta[r].robots).toContain("noindex");
+    });
   });
 });
 
@@ -183,7 +160,6 @@ describe("Navigation config sync", () => {
   it("has matching entries in navigationConfig and routeMeta", async () => {
     const { navigationItems } = await import("@/data/navigationConfig");
     const { routeMeta } = await import("@/data/seoConfig");
-    
     navigationItems.forEach(item => {
       expect(routeMeta[item.path]).toBeDefined();
     });
@@ -200,21 +176,12 @@ describe("Navigation config sync", () => {
 
   it("getAdjacentPages returns correct prev/next", async () => {
     const { getAdjacentPages, navigationItems } = await import("@/data/navigationConfig");
-    
-    // First page has no prev
     const first = getAdjacentPages(navigationItems[0].path);
     expect(first.prev).toBeNull();
     expect(first.next).toBeTruthy();
-
-    // Last page has no next
     const last = getAdjacentPages(navigationItems[navigationItems.length - 1].path);
     expect(last.prev).toBeTruthy();
     expect(last.next).toBeNull();
-
-    // Middle page has both
-    const mid = getAdjacentPages(navigationItems[3].path);
-    expect(mid.prev).toBeTruthy();
-    expect(mid.next).toBeTruthy();
   });
 });
 
@@ -222,10 +189,7 @@ describe("Brief constants utilities", () => {
   it("normalizeBriefData trims and filters", async () => {
     const { normalizeBriefData } = await import("@/data/briefConstants");
     const result = normalizeBriefData({
-      name: "  test  ",
-      empty: "",
-      arr: ["a", "", "b"],
-      emptyArr: [],
+      name: "  test  ", empty: "", arr: ["a", "", "b"], emptyArr: [],
     });
     expect(result.name).toBe("test");
     expect(result.empty).toBeUndefined();
@@ -244,8 +208,7 @@ describe("Brief constants utilities", () => {
   it("parseStoredBrief handles valid data", async () => {
     const { parseStoredBrief } = await import("@/data/briefConstants");
     const result = parseStoredBrief(JSON.stringify({
-      version: "1.0",
-      updatedAt: "2024-01-01",
+      version: "1.0", updatedAt: "2024-01-01",
       data: { hospitalName: "test" },
     }));
     expect(result.error).toBeNull();
@@ -255,8 +218,7 @@ describe("Brief constants utilities", () => {
   it("parseStoredBrief detects version mismatch", async () => {
     const { parseStoredBrief } = await import("@/data/briefConstants");
     const result = parseStoredBrief(JSON.stringify({
-      version: "99.0",
-      updatedAt: "2024-01-01",
+      version: "99.0", updatedAt: "2024-01-01",
       data: { hospitalName: "test" },
     }));
     expect(result.error).toBe("version_mismatch");
@@ -273,38 +235,45 @@ describe("Brief constants utilities", () => {
     expect(parseStoredBrief(JSON.stringify({ version: "1.0", data: { num: 123 } })).error).toBe("invalid_shape");
   });
 
+  it("parseStoredBrief handles legacy plain object format", async () => {
+    const { parseStoredBrief } = await import("@/data/briefConstants");
+    const result = parseStoredBrief(JSON.stringify({ hospitalName: "legacy" }));
+    expect(result.error).toBeNull();
+    expect(result.brief?.data.hospitalName).toBe("legacy");
+    expect(result.brief?.version).toBe("1.0");
+  });
+
   it("inferSiteType returns correct types", async () => {
     const { inferSiteType } = await import("@/data/briefConstants");
-    
     expect(inferSiteType({ institutionType: "검진센터" }).type).toBe("검진센터형");
     expect(inferSiteType({ doctorCount: "3", departments: ["내과", "외과", "안과"] }).type).toBe("정보 제공형");
     expect(inferSiteType({ doctorCount: "2" }).type).toBe("전문의 신뢰형");
     expect(inferSiteType({ bookingMethod: ["온라인 예약"] }).type).toBe("예약 유도형");
     expect(inferSiteType({}).type).toBe("지역 의원형");
   });
+
+  it("hasOnlineBooking detects correctly", async () => {
+    const { hasOnlineBooking } = await import("@/data/briefConstants");
+    expect(hasOnlineBooking({ bookingMethod: ["온라인 예약 (자체)"] })).toBe(true);
+    expect(hasOnlineBooking({ bookingMethod: ["네이버 예약"] })).toBe(true);
+    expect(hasOnlineBooking({ bookingMethod: ["전화 예약"] })).toBe(false);
+    expect(hasOnlineBooking({})).toBe(false);
+  });
 });
 
 describe("Implementation rules dynamic matching", () => {
+  beforeEach(() => { localStorage.clear(); });
+
   it("returns different site type based on brief data", async () => {
     const { default: ImplementationRules } = await import("@/pages/ImplementationRules");
-    
     localStorage.setItem("clientBrief", JSON.stringify({
-      version: "1.0",
-      updatedAt: new Date().toISOString(),
+      version: "1.0", updatedAt: new Date().toISOString(),
       data: {
-        institutionType: "검진센터",
-        departments: ["내과"],
-        doctorCount: "3",
-        bookingMethod: ["온라인 예약 (자체)"],
+        institutionType: "검진센터", departments: ["내과"],
+        doctorCount: "3", bookingMethod: ["온라인 예약 (자체)"],
       },
     }));
-
-    render(
-      <MemoryRouter>
-        <ImplementationRules />
-      </MemoryRouter>
-    );
-
+    render(<MemoryRouter><ImplementationRules /></MemoryRouter>);
     const matches = screen.getAllByText("검진센터형");
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });

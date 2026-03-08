@@ -10,7 +10,4 @@
   <url><loc>https://medical-guide.example.com/compliance-guide</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://medical-guide.example.com/seo-geo</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
   <url><loc>https://medical-guide.example.com/checklist</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://medical-guide.example.com/client-brief</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://medical-guide.example.com/site-blueprint</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
-  <url><loc>https://medical-guide.example.com/implementation-rules</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
 </urlset>

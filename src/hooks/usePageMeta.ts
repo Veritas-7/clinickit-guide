@@ -25,18 +25,17 @@ export function usePageMeta() {
     // Meta description
     setMeta("name", "description", meta.description);
 
-    // Robots — explicit per-route or default
+    // Robots
     const robotsContent = meta.robots || (meta.noindex ? "noindex, nofollow" : "index, follow");
     setMeta("name", "robots", robotsContent);
 
-    // Canonical
+    // Canonical — noindex pages still get a canonical to themselves
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonical) {
       canonical = document.createElement("link");
       canonical.setAttribute("rel", "canonical");
       document.head.appendChild(canonical);
     }
-    // For noindex pages, still set canonical but to itself
     canonical.setAttribute("href", `${BASE_URL}${pathname === "/" ? "" : pathname}`);
 
     const fullUrl = `${BASE_URL}${pathname === "/" ? "" : pathname}`;
@@ -61,7 +60,6 @@ export function usePageMeta() {
     const existingLd = document.querySelector('script[data-page-jsonld]');
     if (existingLd) existingLd.remove();
 
-    // Build WebPage JSON-LD if no custom jsonLd provided
     const jsonLdData = meta.jsonLd || {
       "@context": "https://schema.org",
       "@type": meta.schemaType || "WebPage",
@@ -80,15 +78,16 @@ export function usePageMeta() {
     // BreadcrumbList JSON-LD
     const existingBc = document.querySelector('script[data-breadcrumb-jsonld]');
     if (existingBc) existingBc.remove();
-    if (meta.breadcrumb && meta.breadcrumb.length > 0) {
+    const breadcrumb = meta.breadcrumb || fallbackMeta.breadcrumb;
+    if (breadcrumb && breadcrumb.length > 0) {
       const bcLd = {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
-        itemListElement: meta.breadcrumb.map((item, i) => ({
+        itemListElement: breadcrumb.map((item, i) => ({
           "@type": "ListItem",
           position: i + 1,
           name: item.name,
-          item: `${BASE_URL}${item.url === "/" ? "" : item.url}`,
+          item: item.url ? `${BASE_URL}${item.url === "/" ? "" : item.url}` : undefined,
         })),
       };
       const bcScript = document.createElement("script");
