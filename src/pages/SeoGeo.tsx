@@ -234,7 +234,7 @@ export default function SeoGeo() {
       </section>
 
       {/* 구조화 데이터 JSON-LD */}
-      <section className="guide-section">
+      <section id="json-ld" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2" sub="실제 프로젝트에 복사·수정하여 사용할 수 있는 JSON-LD 템플릿">
           구조화 데이터 (JSON-LD) 템플릿
         </SectionHeading>
