@@ -324,13 +324,14 @@ export default function ClientBrief() {
 
       {/* 누락 필수 항목 경고 */}
       {missingRequired.length > 0 && missingRequired.length < requiredFields.length && (
-        <div className="guide-notice-warning mb-6">
-          <p className="text-sm font-semibold mb-1"><AlertTriangle className="h-3.5 w-3.5 inline" /> 필수 항목 누락</p>
-          <div className="flex flex-wrap gap-1.5">
-            {missingRequired.map(f => (
-              <span key={f.id} className="text-[11px] border border-warning/30 rounded px-1.5 py-0.5">{f.label}</span>
-            ))}
-          </div>
+        <div className="mb-6">
+          <StatusCard type="warning" title="필수 항목 누락" description={`${missingRequired.length}개의 필수 항목이 아직 입력되지 않았습니다.`}>
+            <div className="flex flex-wrap gap-1.5 justify-center mt-2">
+              {missingRequired.map(f => (
+                <span key={f.id} className="text-[11px] border border-warning/30 bg-background rounded px-1.5 py-0.5">{f.label}</span>
+              ))}
+            </div>
+          </StatusCard>
         </div>
       )}
 
