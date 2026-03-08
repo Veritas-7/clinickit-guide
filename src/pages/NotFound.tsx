@@ -8,6 +8,8 @@ const NotFound = () => {
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    // The usePageMeta hook in App handles 404 meta via fallbackMeta automatically
+    // since this route won't match any routeMeta key
   }, [location.pathname]);
 
   return (

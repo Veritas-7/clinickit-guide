@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PageNavigation } from "@/components/PageNavigation";
+import { StatusCard } from "@/components/StatusCard";
 import { briefFields, briefGroups } from "@/data/clientBriefFields";
 import {
   BriefData, StoredBrief, BRIEF_STORAGE_KEY, BRIEF_SCHEMA_VERSION,
@@ -314,27 +315,23 @@ export default function ClientBrief() {
 
       {/* Import error state */}
       {importError && (
-        <div className="guide-notice-warning mb-6">
-          <div className="flex items-start gap-2">
-            <XCircle className="h-4 w-4 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm font-semibold">JSON 불러오기 실패</p>
-              <p className="text-sm mt-0.5">{importError}</p>
-              <button onClick={() => setImportError(null)} className="text-xs text-accent underline mt-1">닫기</button>
-            </div>
-          </div>
+        <div className="mb-6">
+          <StatusCard type="error" title="JSON 불러오기 실패" description={importError}>
+            <button onClick={() => setImportError(null)} className="text-xs text-accent underline mt-1">닫기</button>
+          </StatusCard>
         </div>
       )}
 
       {/* 누락 필수 항목 경고 */}
       {missingRequired.length > 0 && missingRequired.length < requiredFields.length && (
-        <div className="guide-notice-warning mb-6">
-          <p className="text-sm font-semibold mb-1"><AlertTriangle className="h-3.5 w-3.5 inline" /> 필수 항목 누락</p>
-          <div className="flex flex-wrap gap-1.5">
-            {missingRequired.map(f => (
-              <span key={f.id} className="text-[11px] border border-warning/30 rounded px-1.5 py-0.5">{f.label}</span>
-            ))}
-          </div>
+        <div className="mb-6">
+          <StatusCard type="warning" title="필수 항목 누락" description={`${missingRequired.length}개의 필수 항목이 아직 입력되지 않았습니다.`}>
+            <div className="flex flex-wrap gap-1.5 justify-center mt-2">
+              {missingRequired.map(f => (
+                <span key={f.id} className="text-[11px] border border-warning/30 bg-background rounded px-1.5 py-0.5">{f.label}</span>
+              ))}
+            </div>
+          </StatusCard>
         </div>
       )}
 
