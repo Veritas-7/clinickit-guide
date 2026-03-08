@@ -76,7 +76,7 @@ export default function ComplianceGuide() {
       </div>
 
       {/* 검토 라벨 시스템 */}
-      <section className="guide-section">
+      <section id="label-system" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">검토 필요 라벨 시스템</SectionHeading>
         <div className="guide-card">
           <p className="text-sm text-muted-foreground mb-3">각 컴포넌트와 콘텐츠 영역에 아래 라벨을 부착하여 검토 필요 여부를 한눈에 파악합니다.</p>
