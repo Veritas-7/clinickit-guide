@@ -5,6 +5,7 @@ import { useLocation } from "react-router-dom";
 import { AlertTriangle, TrendingUp, Users, Building, MapPin } from "lucide-react";
 
 export default function IndustryOverview() {
+  const { pathname } = useLocation();
   return (
     <div>
       <SectionHeading
