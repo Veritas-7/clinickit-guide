@@ -36,7 +36,16 @@ export default function DesignGuide() {
         디자인 가이드
       </SectionHeading>
 
-      {/* 브랜드 톤 */}
+      {/* 핵심 요약 */}
+      <div className="guide-notice-info mb-8">
+        <p className="text-sm font-semibold mb-1">📋 핵심 요약</p>
+        <ul className="text-sm space-y-0.5">
+          <li>• 네이비(Primary) + 틸(Accent) 컬러 시스템, HSL 토큰 기반</li>
+          <li>• Noto Sans KR + Inter 서체 조합, 15px 본문 최소</li>
+          <li>• 실제 의료진/시설 사진만 사용, 스톡사진 금지</li>
+          <li>• WCAG AA 대비 4.5:1 이상, 색상만으로 정보 구분 금지</li>
+        </ul>
+      </div>
       <section className="guide-section">
         <SectionHeading tag="h2">브랜드 톤 & 비주얼 키워드</SectionHeading>
         <div className="flex flex-wrap gap-2 mb-4">
