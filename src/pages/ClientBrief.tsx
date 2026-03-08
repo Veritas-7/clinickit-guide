@@ -1,20 +1,14 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { SectionHeading } from "@/components/SectionHeading";
+import { PageNavigation } from "@/components/PageNavigation";
 import { briefFields, briefGroups } from "@/data/clientBriefFields";
-import { Link } from "react-router-dom";
+import {
+  BriefData, StoredBrief, BRIEF_STORAGE_KEY, BRIEF_SCHEMA_VERSION,
+  normalizeBriefData, loadBrief, saveBrief, inferSiteType, hasOnlineBooking,
+} from "@/data/briefConstants";
+import { Link, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, Download, Upload, RotateCcw, Sparkles, Save, AlertTriangle, CheckCircle2, ChevronRight } from "lucide-react";
-
-type BriefData = Record<string, string | string[]>;
-
-const STORAGE_KEY = "clientBrief";
-const SCHEMA_VERSION = "1.0";
-
-interface StoredBrief {
-  version: string;
-  updatedAt: string;
-  data: BriefData;
-}
 
 const exampleData: BriefData = {
   hospitalName: "서울좋은내과의원",
@@ -47,39 +41,43 @@ const exampleData: BriefData = {
   restrictions: "타 병원 비교 금지, 치료 성공률 수치 표기 금지",
 };
 
-function inferSiteType(data: BriefData): string {
-  const type = (data.institutionType as string) || "";
-  const depts = (data.departments as string[]) || [];
-  const doctors = parseInt((data.doctorCount as string) || "1");
-  const booking = (data.bookingMethod as string[]) || [];
-  const hasOnlineBooking = booking.some(b => b.includes("온라인") || b.includes("네이버") || b.includes("카카오"));
-  if (type === "검진센터") return "검진센터형";
-  if (doctors >= 3 && depts.length >= 3) return "정보 제공형";
-  if (doctors >= 2) return "전문의 신뢰형";
-  if (hasOnlineBooking) return "예약 유도형";
-  return "지역 의원형";
-}
-
 export default function ClientBrief() {
   const [data, setData] = useState<BriefData>({});
   const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [importError, setImportError] = useState(false);
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { toast } = useToast();
+  const { pathname } = useLocation();
 
+  // Load on mount
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(BRIEF_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as StoredBrief;
-        if (parsed.version === SCHEMA_VERSION) {
+        if (parsed.version === BRIEF_SCHEMA_VERSION) {
           setData(parsed.data);
           setLastSaved(parsed.updatedAt);
         } else {
-          // Migration: old format (plain object)
+          toast({ title: "스키마 버전 불일치", description: `저장된 데이터(v${parsed.version || "?"})가 현재 버전(v${BRIEF_SCHEMA_VERSION})과 다릅니다. 데이터를 불러왔지만 일부 필드가 누락될 수 있습니다.`, variant: "destructive" });
           setData(parsed.data || (parsed as unknown as BriefData));
         }
       }
     } catch { /* ignore */ }
   }, []);
+
+  // Auto-save (debounced 2s)
+  useEffect(() => {
+    if (Object.keys(data).length === 0) return;
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(() => {
+      try {
+        const stored = saveBrief(data);
+        setLastSaved(stored.updatedAt);
+      } catch { /* silent */ }
+    }, 2000);
+    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
+  }, [data]);
 
   const updateField = (id: string, value: string | string[]) => {
     setData(prev => ({ ...prev, [id]: value }));
@@ -93,8 +91,7 @@ export default function ClientBrief() {
 
   const handleSave = useCallback(() => {
     try {
-      const stored: StoredBrief = { version: SCHEMA_VERSION, updatedAt: new Date().toISOString(), data };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+      const stored = saveBrief(data);
       setLastSaved(stored.updatedAt);
       toast({ title: "저장 완료", description: "브리프가 저장되었습니다." });
     } catch {
@@ -106,18 +103,18 @@ export default function ClientBrief() {
     if (confirm("모든 입력을 초기화하시겠습니까?")) {
       setData({});
       setLastSaved(null);
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(BRIEF_STORAGE_KEY);
       toast({ title: "초기화 완료" });
     }
   };
 
   const handleFillExample = () => {
     setData(exampleData);
-    toast({ title: "예시 데이터 채움", description: "예시 데이터가 입력되었습니다. 저장하려면 '저장' 버튼을 누르세요." });
+    toast({ title: "예시 데이터 채움", description: "예시 데이터가 입력되었습니다. 자동 저장됩니다." });
   };
 
   const handleExportJSON = () => {
-    const stored: StoredBrief = { version: SCHEMA_VERSION, updatedAt: new Date().toISOString(), data };
+    const stored: StoredBrief = { version: BRIEF_SCHEMA_VERSION, updatedAt: new Date().toISOString(), data: normalizeBriefData(data) };
     const blob = new Blob([JSON.stringify(stored, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -129,6 +126,7 @@ export default function ClientBrief() {
   };
 
   const handleImportJSON = () => {
+    setImportError(false);
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".json";
@@ -139,11 +137,15 @@ export default function ClientBrief() {
       reader.onload = (ev) => {
         try {
           const parsed = JSON.parse(ev.target?.result as string) as StoredBrief;
-          if (parsed.data && typeof parsed.data === "object") {
-            setData(parsed.data);
-            toast({ title: "불러오기 완료", description: `${file.name}에서 브리프를 불러왔습니다.` });
+          if (!parsed.data || typeof parsed.data !== "object") throw new Error("Invalid");
+          if (parsed.version && parsed.version !== BRIEF_SCHEMA_VERSION) {
+            toast({ title: "스키마 버전 다름", description: `파일 버전(v${parsed.version})이 다릅니다. 가능한 필드만 불러옵니다.` });
           }
+          setData(parsed.data);
+          setImportError(false);
+          toast({ title: "불러오기 완료", description: `${file.name}에서 브리프를 불러왔습니다.` });
         } catch {
+          setImportError(true);
           toast({ title: "불러오기 실패", description: "유효한 JSON 파일이 아닙니다.", variant: "destructive" });
         }
       };
@@ -181,10 +183,57 @@ export default function ClientBrief() {
         고객사 브리프
       </SectionHeading>
 
+      {/* 요약 대시보드 - 항상 표시 */}
+      <div className="guide-card-accent mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 text-sm">
+          <div>
+            <p className="text-[11px] text-muted-foreground">병원명</p>
+            <p className="font-semibold text-card-foreground truncate">{(data.hospitalName as string) || "—"}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-muted-foreground">기관 유형</p>
+            <p className="font-semibold text-card-foreground">{(data.institutionType as string) || "—"}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-muted-foreground">진료과 / 의료진</p>
+            <p className="font-semibold text-card-foreground">{((data.departments as string[]) || []).length}과 / {(data.doctorCount as string) || "—"}명</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-muted-foreground">예약 방식</p>
+            <p className="font-semibold text-card-foreground truncate">{((data.bookingMethod as string[]) || []).join(", ") || "—"}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-muted-foreground">예상 사이트 유형</p>
+            <span className="guide-badge-info text-[11px]">{siteTypePreview.type}</span>
+          </div>
+          <div>
+            <p className="text-[11px] text-muted-foreground">CTA 우선순위</p>
+            <p className="font-semibold text-card-foreground truncate text-xs">{((data.ctaPriority as string[]) || []).slice(0, 3).join(" > ") || "—"}</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-muted-foreground">사진 보유</p>
+            <p className="font-semibold text-card-foreground text-xs">{((data.photoTypes as string[]) || []).length}종</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-muted-foreground">필수 페이지</p>
+            <p className="font-semibold text-card-foreground text-xs">{((data.requiredPages as string[]) || []).length}개</p>
+          </div>
+          <div>
+            <p className="text-[11px] text-muted-foreground">누락 필수 항목</p>
+            <p className={`font-semibold text-xs ${missingRequired.length > 0 ? "text-warning" : "text-success"}`}>
+              {missingRequired.length > 0 ? `${missingRequired.length}개` : "없음 ✓"}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] text-muted-foreground">입력 진행률</p>
+            <p className="font-semibold text-card-foreground text-xs">{filledCount}/{briefFields.length}</p>
+          </div>
+        </div>
+      </div>
+
       {/* 액션 바 */}
       <div className="guide-card mb-6">
         <div className="flex flex-col gap-4">
-          {/* 진행률 */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
@@ -203,11 +252,10 @@ export default function ClientBrief() {
               <div className="h-2 rounded-full transition-all" style={{ width: `${(filledCount / briefFields.length) * 100}%`, background: "hsl(var(--accent))" }} />
             </div>
             {lastSaved && (
-              <p className="text-[11px] text-muted-foreground mt-1">마지막 저장: {new Date(lastSaved).toLocaleString("ko-KR")}</p>
+              <p className="text-[11px] text-muted-foreground mt-1">마지막 저장: {new Date(lastSaved).toLocaleString("ko-KR")} · 자동 저장 활성</p>
             )}
           </div>
 
-          {/* 버튼 */}
           <div className="flex flex-wrap gap-2">
             <button onClick={handleFillExample} className="inline-flex items-center gap-1.5 text-xs border border-border rounded-lg px-3 py-1.5 text-muted-foreground hover:bg-secondary transition-colors">
               <Sparkles className="h-3.5 w-3.5" /> 예시 채우기
@@ -222,11 +270,18 @@ export default function ClientBrief() {
               <Download className="h-3.5 w-3.5" /> JSON 내보내기
             </button>
             <button onClick={handleSave} className="inline-flex items-center gap-1.5 text-xs bg-primary text-primary-foreground rounded-lg px-3 py-1.5 hover:opacity-90 transition-opacity ml-auto">
-              <Save className="h-3.5 w-3.5" /> 저장
+              <Save className="h-3.5 w-3.5" /> 수동 저장
             </button>
           </div>
         </div>
       </div>
+
+      {/* Import error state */}
+      {importError && (
+        <div className="guide-notice-warning mb-6">
+          <p className="text-sm"><AlertTriangle className="h-3.5 w-3.5 inline" /> JSON 불러오기에 실패했습니다. 올바른 형식의 브리프 JSON 파일인지 확인하세요.</p>
+        </div>
+      )}
 
       {/* 누락 필수 항목 경고 */}
       {missingRequired.length > 0 && missingRequired.length < requiredFields.length && (
@@ -249,13 +304,13 @@ export default function ClientBrief() {
               <div key={field.id} className="guide-card">
                 <label className="block text-sm font-medium text-card-foreground mb-2">
                   {field.label}
-                  {field.required && <span className="text-emergency ml-1">*</span>}
+                  {field.required && <span className="text-destructive ml-1">*</span>}
                 </label>
 
                 {field.type === "text" && (
                   <input
                     type="text"
-                    className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
                     placeholder={field.placeholder}
                     value={(data[field.id] as string) || ""}
                     onChange={e => updateField(field.id, e.target.value)}
@@ -265,7 +320,7 @@ export default function ClientBrief() {
 
                 {field.type === "textarea" && (
                   <textarea
-                    className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background min-h-[80px] focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent"
+                    className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background min-h-[80px] focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
                     placeholder={field.placeholder}
                     value={(data[field.id] as string) || ""}
                     onChange={e => updateField(field.id, e.target.value)}
@@ -276,10 +331,14 @@ export default function ClientBrief() {
                 {field.type === "number" && (
                   <input
                     type="number"
-                    className="w-32 border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent"
+                    min="0"
+                    className="w-32 border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-accent/40 focus:border-accent focus-visible:ring-2 focus-visible:ring-accent/40"
                     placeholder={field.placeholder}
                     value={(data[field.id] as string) || ""}
-                    onChange={e => updateField(field.id, e.target.value)}
+                    onChange={e => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d+$/.test(val)) updateField(field.id, val);
+                    }}
                     aria-required={field.required}
                   />
                 )}
@@ -329,47 +388,6 @@ export default function ClientBrief() {
         </section>
       ))}
 
-      {/* 브리프 요약 카드 */}
-      {hasBrief && (
-        <section className="guide-section">
-          <SectionHeading tag="h2">브리프 요약</SectionHeading>
-          <div className="guide-card-accent">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <p className="text-muted-foreground text-xs mb-1">병원명</p>
-                <p className="font-medium text-card-foreground">{(data.hospitalName as string) || "—"}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs mb-1">기관 유형</p>
-                <p className="font-medium text-card-foreground">{(data.institutionType as string) || "—"}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs mb-1">진료과목</p>
-                <p className="font-medium text-card-foreground">{((data.departments as string[]) || []).join(", ") || "—"}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs mb-1">지역</p>
-                <p className="font-medium text-card-foreground">{(data.region as string) || "—"}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs mb-1">의료진 수</p>
-                <p className="font-medium text-card-foreground">{(data.doctorCount as string) || "—"}명</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs mb-1">예약 방식</p>
-                <p className="font-medium text-card-foreground">{((data.bookingMethod as string[]) || []).join(", ") || "—"}</p>
-              </div>
-            </div>
-
-            {/* 예상 사이트 유형 */}
-            <div className="mt-4 pt-4 border-t border-border/40">
-              <p className="text-xs text-muted-foreground mb-1">예상 사이트 유형</p>
-              <span className="guide-badge-info text-sm">{siteTypePreview}</span>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* 하단 CTA */}
       <div className="guide-section text-center">
         <div className="flex flex-wrap justify-center gap-3">
@@ -381,6 +399,8 @@ export default function ClientBrief() {
           </Link>
         </div>
       </div>
+
+      <PageNavigation currentPath={pathname} />
     </div>
   );
 }

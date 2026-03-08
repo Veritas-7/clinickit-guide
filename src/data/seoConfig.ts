@@ -13,6 +13,7 @@ export interface RouteMeta {
   keywords?: string[];
   noindex?: boolean;
   jsonLd?: Record<string, unknown>;
+  breadcrumb?: { name: string; url: string }[];
 }
 
 export const routeMeta: Record<string, RouteMeta> = {
@@ -27,66 +28,79 @@ export const routeMeta: Record<string, RouteMeta> = {
       url: BASE_URL,
       description: "병원·의원 업종 홈페이지 제작을 위한 통합 가이드 시스템",
     },
+    breadcrumb: [{ name: "홈", url: "/" }],
   },
   "/industry-overview": {
     title: "병원/의원 업종 특성 | 의료기관 웹사이트 가이드",
     description: "병원/의원 홈페이지가 일반 서비스업과 다른 점, 사용자 행동 패턴, 신뢰 형성 요소, 의료기관 유형별 차이를 정리합니다.",
     keywords: ["의료기관 업종 특성", "병원 사용자 행동", "의원 신뢰 형성"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "업종 특성", url: "/industry-overview" }],
   },
   "/design-guide": {
     title: "디자인 가이드 | 병원/의원 디자인 시스템",
     description: "병원/의원 업종에 최적화된 컬러, 타이포그래피, 간격, 이미지, 접근성 디자인 시스템.",
     keywords: ["병원 디자인 시스템", "의료기관 컬러 토큰", "의원 타이포그래피"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "디자인 가이드", url: "/design-guide" }],
   },
   "/ui-guide": {
     title: "UI 가이드 | 병원/의원 UI 컴포넌트 패턴",
     description: "병원/의원 사이트의 핵심 UI 패턴: Quick Info Bar, 히어로, 진료과목 카드, 의료진 카드, CTA, FAQ, 모바일 고정 바 등.",
     keywords: ["병원 UI 패턴", "의원 컴포넌트", "의료기관 CTA"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "UI 가이드", url: "/ui-guide" }],
   },
   "/ux-guide": {
     title: "UX 가이드 | 병원/의원 사용자 경험 설계",
     description: "병원/의원 방문자의 사용자 여정, 정보 우선순위, 전환 흐름, 모바일 UX 전략을 정리합니다.",
     keywords: ["병원 UX", "의원 사용자 여정", "의료기관 전환 최적화"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "UX 가이드", url: "/ux-guide" }],
   },
   "/page-templates": {
     title: "페이지 템플릿 | 병원/의원 홈페이지 블록 시스템",
     description: "병원/의원 홈페이지 제작을 위한 페이지별 블록 템플릿. 필수/선택/조건부 블록, CTA, 신뢰 요소 포함.",
     keywords: ["병원 페이지 템플릿", "의원 홈페이지 구조"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "페이지 템플릿", url: "/page-templates" }],
   },
   "/content-guide": {
     title: "콘텐츠 가이드 | 병원/의원 카피라이팅",
     description: "병원/의원 웹사이트의 카피 톤, 문장 템플릿, CTA 문구, 금지 표현. 신뢰를 높이고 법적 리스크를 줄이는 기준.",
     keywords: ["병원 카피라이팅", "의원 콘텐츠"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "콘텐츠 가이드", url: "/content-guide" }],
   },
   "/compliance-guide": {
     title: "컴플라이언스 가이드 | 병원/의원 법률 검토 기준",
     description: "병원/의원 웹사이트의 법률/광고 검토 포인트. 의료진 정보, 진료 카피, 후기, 비급여, 이벤트 등 검토 체계.",
     keywords: ["의료광고 심의", "병원 컴플라이언스"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "컴플라이언스", url: "/compliance-guide" }],
   },
   "/seo-geo": {
     title: "SEO/GEO 가이드 | 병원/의원 검색 최적화",
     description: "병원/의원 사이트의 메타 데이터, URL 구조, 구조화 데이터, 로컬 SEO, 지역 기반 검색 최적화 전략.",
     keywords: ["병원 SEO", "의원 로컬 SEO"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "SEO/GEO", url: "/seo-geo" }],
   },
   "/checklist": {
     title: "실무 체크리스트 | 병원/의원 홈페이지 QA",
     description: "병원/의원 웹사이트 제작 전/후 실무 체크리스트. 디자인, UI, UX, 콘텐츠, 컴플라이언스, SEO 점검.",
     keywords: ["병원 홈페이지 체크리스트", "의원 QA"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "체크리스트", url: "/checklist" }],
   },
   "/client-brief": {
     title: "고객사 브리프 | 병원/의원 프로젝트 정보 수집",
     description: "병원/의원 고객사의 기본 정보를 체계적으로 정리하는 브리프 도구. JSON 내보내기, 예시 데이터 자동 채우기 지원.",
     keywords: ["병원 브리프", "의원 프로젝트"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "고객사 브리프", url: "/client-brief" }],
   },
   "/site-blueprint": {
     title: "사이트 블루프린트 | 병원/의원 구조 자동 설계",
     description: "고객사 브리프 기반으로 공개용 병원/의원 사이트의 페이지 구조, CTA, SEO, Lovable 프롬프트를 자동 도출합니다.",
     keywords: ["병원 사이트 구조", "의원 블루프린트"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "사이트 블루프린트", url: "/site-blueprint" }],
   },
   "/implementation-rules": {
     title: "구현 규칙 | 병원/의원 제작 실무 기준",
     description: "브리프 기반 조건별 템플릿 선택, CTA 우선순위, 레이아웃 분기, 축소 구조 등 동적 구현 규칙 엔진.",
     keywords: ["병원 제작 규칙", "의원 구현 가이드"],
+    breadcrumb: [{ name: "홈", url: "/" }, { name: "구현 규칙", url: "/implementation-rules" }],
   },
 };
 
@@ -173,7 +187,6 @@ export const jsonLdTemplates = {
 }`,
 };
 
-// sitemap 구조 예시
 export const sitemapStructure = [
   { url: "/", priority: "1.0", changefreq: "weekly" },
   { url: "/departments", priority: "0.9", changefreq: "monthly" },

@@ -1,20 +1,6 @@
-import {
-  LayoutDashboard,
-  Building2,
-  Palette,
-  Component,
-  Route,
-  FileText,
-  PenTool,
-  ShieldCheck,
-  Search,
-  CheckSquare,
-  ClipboardList,
-  Map,
-  Settings,
-} from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { guideItems, toolItems } from "@/data/navigationConfig";
 import {
   Sidebar,
   SidebarContent,
@@ -26,25 +12,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-
-const guideItems = [
-  { title: "Overview", url: "/", icon: LayoutDashboard },
-  { title: "Industry", url: "/industry-overview", icon: Building2 },
-  { title: "Design Guide", url: "/design-guide", icon: Palette },
-  { title: "UI Guide", url: "/ui-guide", icon: Component },
-  { title: "UX Guide", url: "/ux-guide", icon: Route },
-  { title: "Page Templates", url: "/page-templates", icon: FileText },
-  { title: "Content Guide", url: "/content-guide", icon: PenTool },
-  { title: "Compliance", url: "/compliance-guide", icon: ShieldCheck },
-  { title: "SEO/GEO", url: "/seo-geo", icon: Search },
-  { title: "Checklist", url: "/checklist", icon: CheckSquare },
-];
-
-const toolItems = [
-  { title: "Client Brief", url: "/client-brief", icon: ClipboardList },
-  { title: "Site Blueprint", url: "/site-blueprint", icon: Map },
-  { title: "Implementation Rules", url: "/implementation-rules", icon: Settings },
-];
+import { Building2 } from "lucide-react";
 
 export function GuideSidebar() {
   const { state } = useSidebar();
@@ -53,18 +21,18 @@ export function GuideSidebar() {
 
   const renderItems = (items: typeof guideItems) =>
     items.map((item) => (
-      <SidebarMenuItem key={item.url}>
+      <SidebarMenuItem key={item.path}>
         <SidebarMenuButton
           asChild
           isActive={
-            item.url === "/"
+            item.path === "/"
               ? location.pathname === "/"
-              : location.pathname.startsWith(item.url)
+              : location.pathname.startsWith(item.path)
           }
         >
           <NavLink
-            to={item.url}
-            end={item.url === "/"}
+            to={item.path}
+            end={item.path === "/"}
             className="hover:bg-sidebar-accent/60"
             activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
           >

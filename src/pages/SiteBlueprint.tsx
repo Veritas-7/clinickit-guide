@@ -3,57 +3,11 @@ import { SectionHeading } from "@/components/SectionHeading";
 import { CopyBlock } from "@/components/CopyBlock";
 import { PageNavigation } from "@/components/PageNavigation";
 import { Link, useLocation } from "react-router-dom";
-import { briefFields } from "@/data/clientBriefFields";
+import { BriefData, loadBrief, inferSiteType, hasOnlineBooking } from "@/data/briefConstants";
 import { pageTemplates } from "@/data/templateBlueprints";
 import { siteTypeRules, ctaPriorityRules, coreBlocks } from "@/data/implementationRules";
 import { jsonLdTemplates } from "@/data/seoConfig";
 import { AlertTriangle, Copy, Check, FileText, Smartphone, Search, ShieldCheck, ChevronRight } from "lucide-react";
-
-type BriefData = Record<string, string | string[]>;
-
-function loadBrief(): BriefData {
-  try {
-    const stored = localStorage.getItem("clientBrief");
-    if (!stored) return {};
-    const parsed = JSON.parse(stored);
-    return parsed.data || parsed;
-  } catch { return {}; }
-}
-
-function inferSiteType(data: BriefData): { type: string; reasons: string[] } {
-  const instType = (data.institutionType as string) || "";
-  const depts = (data.departments as string[]) || [];
-  const doctors = parseInt((data.doctorCount as string) || "1");
-  const booking = (data.bookingMethod as string[]) || [];
-  const hasOnline = booking.some(b => b.includes("온라인") || b.includes("네이버") || b.includes("카카오"));
-  const reasons: string[] = [];
-
-  if (instType === "검진센터") { reasons.push("기관 유형: 검진센터"); return { type: "검진센터형", reasons }; }
-  if (doctors >= 3 && depts.length >= 3) { reasons.push(`의료진 ${doctors}명`, `진료과 ${depts.length}개`); return { type: "정보 제공형", reasons }; }
-  if (doctors >= 2) { reasons.push(`전문의 ${doctors}명`); return { type: "전문의 신뢰형", reasons }; }
-  if (hasOnline) { reasons.push("온라인 예약 가능"); return { type: "예약 유도형", reasons }; }
-  reasons.push("단일/소규모 의원, 지역 밀착");
-  return { type: "지역 의원형", reasons };
-}
-
-function getRecommendedPages(data: BriefData): { required: string[]; optional: string[]; removable: string[] } {
-  const userRequired = (data.requiredPages as string[]) || [];
-  const base = ["홈", "진료과목", "의료진", "진료시간/방문안내", "오시는 길"];
-  const required = [...new Set([...base, ...userRequired])];
-  const optional: string[] = [];
-  const removable: string[] = [];
-
-  if ((data.nonCoveredInfo as string) === "필요") required.push("비급여 안내");
-  else removable.push("비급여 안내");
-  if ((data.blogColumn as string) === "운영") optional.push("건강정보/칼럼");
-  else removable.push("건강정보/칼럼");
-  if (!required.includes("예약/문의")) optional.push("예약/문의");
-  if (!required.includes("FAQ")) optional.push("FAQ");
-  if (!required.includes("병원 소개")) optional.push("병원 소개");
-  if (!required.includes("증상/질환 안내")) removable.push("증상/질환 안내");
-
-  return { required, optional, removable };
-}
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -64,6 +18,26 @@ function CopyButton({ text }: { text: string }) {
       {copied ? <><Check className="h-3 w-3 text-success" /> 복사됨</> : <><Copy className="h-3 w-3" /> 복사</>}
     </button>
   );
+}
+
+function getRecommendedPages(data: BriefData): { required: string[]; optional: string[]; removable: string[]; forbidden: string[] } {
+  const userRequired = (data.requiredPages as string[]) || [];
+  const base = ["홈", "진료과목", "의료진", "진료시간/방문안내", "오시는 길"];
+  const required = [...new Set([...base, ...userRequired])];
+  const optional: string[] = [];
+  const removable: string[] = [];
+  const forbidden: string[] = ["자가진단 도구", "치료 결과 보장 페이지"];
+
+  if ((data.nonCoveredInfo as string) === "필요") { if (!required.includes("비급여 안내")) required.push("비급여 안내"); }
+  else removable.push("비급여 안내");
+  if ((data.blogColumn as string) === "운영") optional.push("건강정보/칼럼");
+  else removable.push("건강정보/칼럼");
+  if (!required.includes("예약/문의")) optional.push("예약/문의");
+  if (!required.includes("FAQ")) optional.push("FAQ");
+  if (!required.includes("병원 소개")) optional.push("병원 소개");
+  if (!required.includes("증상/질환 안내")) removable.push("증상/질환 안내");
+
+  return { required, optional, removable, forbidden };
 }
 
 export default function SiteBlueprint() {
@@ -80,17 +54,17 @@ export default function SiteBlueprint() {
   const depts = (data.departments as string[]) || [];
   const phone = (data.phone as string) || "[전화번호]";
   const address = (data.address as string) || "[주소]";
-  const hasOnline = ((data.bookingMethod as string[]) || []).some(b => b.includes("온라인") || b.includes("네이버") || b.includes("카카오"));
+  const hasOnline = hasOnlineBooking(data);
   const doctorInfo = (data.doctorInfoReady as string) || "";
   const photoTypes = (data.photoTypes as string[]) || [];
   const hasFacilityPhotos = photoTypes.some(p => p.includes("진료실") || p.includes("대기실") || p.includes("로비"));
   const doctorCount = parseInt((data.doctorCount as string) || "1");
 
-  // Generate meta templates
   const metaTitle = `${hospitalName} | ${region} ${depts[0] || "내과"} 전문의 진료`;
   const metaDesc = `${region} ${depts.slice(0, 2).join(", ")} 전문의가 진료하는 ${hospitalName}. 진료시간, 오시는 길, ${hasOnline ? "온라인 예약" : "전화 문의"} 안내.`;
 
-  // Generate Lovable prompt
+  const allTemplateIds = ["homepage", "departments", "symptoms", "doctors", "about", "visit-info", "location", "reservation", "faq", "notice", "non-covered"];
+
   const lovablePrompt = `병원/의원 홈페이지를 만들어줘.
 
 병원명: ${hospitalName}
@@ -105,6 +79,7 @@ export default function SiteBlueprint() {
 사이트 유형: ${siteType}
 
 필수 페이지: ${pages.required.join(", ")}
+선택 페이지: ${pages.optional.join(", ")}
 핵심 CTA: ${hasOnline ? "온라인 예약 > 전화 > 오시는 길" : "전화 문의 > 오시는 길 > 진료시간 확인"}
 모바일 하단 고정 CTA: ${hasOnline ? "전화 / 예약 / 오시는 길" : "전화 / 오시는 길 / 진료시간"}
 
@@ -112,14 +87,14 @@ export default function SiteBlueprint() {
 컬러: 네이비 + 틸 계열, 화이트 배경
 모바일 우선 설계
 JSON-LD: MedicalBusiness, ${doctorCount > 1 ? "Physician, " : ""}FAQPage
-SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
+SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용
 
-  // Page structure generation for each template
-  const generatePageBlocks = (templateId: string) => {
-    const template = pageTemplates.find(t => t.id === templateId);
-    if (!template) return null;
-    return template;
-  };
+컴플라이언스:
+- 의료진 자격/경력은 사실 기반만 표기
+- 치료 결과 단정/보장 금지
+- 비교 광고 금지
+- 비급여 가격 변동 안내 필수
+- 개인정보 수집 동의 UI 필수`;
 
   const mobileCTA = hasOnline
     ? ["전화 문의 (tel: 링크)", "온라인 예약", "오시는 길 (지도 앱)"]
@@ -138,6 +113,9 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
   jsonLdTypes.push("FAQPage");
   if ((data.blogColumn as string) === "운영") jsonLdTypes.push("Article");
 
+  const blockTypeLabel = { required: "필수", optional: "선택", conditional: "조건부", forbidden: "금지" } as const;
+  const blockTypeBadge = { required: "guide-badge-success", optional: "guide-badge-info", conditional: "guide-badge-warning", forbidden: "guide-badge-emergency" } as const;
+
   return (
     <div>
       <SectionHeading tag="h1" sub="고객사 브리프 기반으로 공개용 병원/의원 사이트의 구조, CTA, SEO, 산출물을 자동 도출합니다.">
@@ -150,7 +128,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       )}
 
-      {/* ===== 사이트 유형 ===== */}
+      {/* 사이트 유형 */}
       <section className="guide-section">
         <SectionHeading tag="h2">추천 사이트 유형</SectionHeading>
         <div className="guide-card-accent">
@@ -173,7 +151,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== CTA 전략 ===== */}
+      {/* CTA */}
       <section className="guide-section">
         <SectionHeading tag="h2">핵심 CTA 우선순위</SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -190,26 +168,25 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== 페이지 구조 ===== */}
+      {/* 페이지 구조 */}
       <section className="guide-section">
         <SectionHeading tag="h2">추천 페이지 구조</SectionHeading>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <h3 className="text-sm font-semibold text-card-foreground mb-2 flex items-center gap-1.5"><span className="guide-badge-success text-[10px]">필수</span>필수 페이지</h3>
-            <div className="space-y-1.5">{pages.required.map(p => <div key={p} className="guide-card text-sm py-2 px-3">{p}</div>)}</div>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-card-foreground mb-2 flex items-center gap-1.5"><span className="guide-badge-info text-[10px]">권장</span>선택 페이지</h3>
-            <div className="space-y-1.5">{pages.optional.map(p => <div key={p} className="guide-card text-sm py-2 px-3 opacity-80">{p}</div>)}</div>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-card-foreground mb-2 flex items-center gap-1.5"><span className="guide-badge-warning text-[10px]">생략 가능</span>제거 가능</h3>
-            <div className="space-y-1.5">{pages.removable.map(p => <div key={p} className="guide-card text-sm py-2 px-3 opacity-60">{p}</div>)}</div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { title: "필수 페이지", badge: "guide-badge-success", label: "필수", items: pages.required },
+            { title: "선택 페이지", badge: "guide-badge-info", label: "권장", items: pages.optional },
+            { title: "제거 가능", badge: "guide-badge-warning", label: "생략 가능", items: pages.removable },
+            { title: "금지 페이지", badge: "guide-badge-emergency", label: "금지", items: pages.forbidden },
+          ].map(col => (
+            <div key={col.title}>
+              <h3 className="text-sm font-semibold text-card-foreground mb-2 flex items-center gap-1.5"><span className={`${col.badge} text-[10px]`}>{col.label}</span>{col.title}</h3>
+              <div className="space-y-1.5">{col.items.map(p => <div key={p} className="guide-card text-sm py-2 px-3">{p}</div>)}</div>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ===== 홈페이지 블록 순서 ===== */}
+      {/* 홈페이지 블록 순서 */}
       <section className="guide-section">
         <SectionHeading tag="h2">추천 홈페이지 블록 순서</SectionHeading>
         <div className="guide-card">
@@ -224,15 +201,13 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== 페이지별 블록 구조 출력 ===== */}
+      {/* 페이지별 블록 구조 - 전체 출력 */}
       <section className="guide-section">
         <SectionHeading tag="h2">페이지별 블록 구조</SectionHeading>
         <div className="space-y-4">
-          {["homepage", "departments", "doctors", "visit-info", "location", "reservation", "faq", "non-covered"].map(id => {
-            const t = generatePageBlocks(id);
+          {allTemplateIds.map(id => {
+            const t = pageTemplates.find(pt => pt.id === id);
             if (!t) return null;
-            const blockTypeLabel = { required: "필수", optional: "선택", conditional: "조건부", forbidden: "금지" } as const;
-            const blockTypeBadge = { required: "guide-badge-success", optional: "guide-badge-info", conditional: "guide-badge-warning", forbidden: "guide-badge-emergency" } as const;
             return (
               <details key={id} className="guide-card group">
                 <summary className="cursor-pointer flex items-center gap-2 text-sm font-semibold text-card-foreground">
@@ -246,14 +221,15 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
                       <div>
                         <span className="font-medium text-card-foreground">{b.title}</span>
                         <span className="text-muted-foreground ml-2">{b.purpose}</span>
-                        {b.photoFallback && !hasFacilityPhotos && <p className="text-[11px] text-warning mt-0.5">사진 없음 대체: {b.photoFallback}</p>}
-                        {b.noBookingFallback && !hasOnline && <p className="text-[11px] text-info mt-0.5">예약 없음 대체: {b.noBookingFallback}</p>}
+                        {b.photoFallback && !hasFacilityPhotos && <p className="text-[11px] text-warning mt-0.5">📷 사진 없음 대체: {b.photoFallback}</p>}
+                        {b.noBookingFallback && !hasOnline && <p className="text-[11px] text-info mt-0.5">📅 예약 없음 대체: {b.noBookingFallback}</p>}
                       </div>
                     </div>
                   ))}
                   <div className="flex flex-wrap gap-4 text-xs text-muted-foreground pt-2">
                     <span>CTA: <strong className="text-card-foreground">{t.primaryCTA}</strong></span>
                     <span>모바일: {t.mobileRule}</span>
+                    {t.compliancePoints.length > 0 && <span>⚖️ {t.compliancePoints[0]}</span>}
                   </div>
                 </div>
               </details>
@@ -262,7 +238,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== 모바일 고정 CTA ===== */}
+      {/* 모바일 고정 CTA */}
       <section className="guide-section">
         <SectionHeading tag="h2"><Smartphone className="h-5 w-5 inline mr-1" />모바일 고정 CTA</SectionHeading>
         <div className="guide-card">
@@ -277,7 +253,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== 신뢰 요소 ===== */}
+      {/* 신뢰 요소 */}
       <section className="guide-section">
         <SectionHeading tag="h2">신뢰 요소 현황</SectionHeading>
         <div className="guide-card">
@@ -293,7 +269,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== 히어로 예시 ===== */}
+      {/* 히어로 예시 */}
       <section className="guide-section">
         <SectionHeading tag="h2">추천 히어로 구조</SectionHeading>
         <div className="guide-card">
@@ -312,7 +288,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== SEO ===== */}
+      {/* SEO */}
       <section className="guide-section">
         <SectionHeading tag="h2"><Search className="h-5 w-5 inline mr-1" />추천 SEO 구조</SectionHeading>
         <div className="space-y-3">
@@ -341,7 +317,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== 마이크로카피 ===== */}
+      {/* 마이크로카피 */}
       <section className="guide-section">
         <SectionHeading tag="h2">예시 마이크로카피</SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -364,7 +340,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== 컴플라이언스 ===== */}
+      {/* 컴플라이언스 */}
       <section className="guide-section">
         <SectionHeading tag="h2"><ShieldCheck className="h-5 w-5 inline mr-1" />컴플라이언스 검토 포인트</SectionHeading>
         <div className="guide-notice-review">
@@ -379,14 +355,14 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== Lovable 프롬프트 ===== */}
+      {/* Lovable 프롬프트 */}
       <section className="guide-section">
         <SectionHeading tag="h2"><FileText className="h-5 w-5 inline mr-1" />공개용 사이트 생성 프롬프트</SectionHeading>
         <p className="text-sm text-muted-foreground mb-3">고객사 정보가 반영된 Lovable용 프롬프트입니다. 복사하여 새 프로젝트에서 바로 사용하세요.</p>
         <CopyBlock content={lovablePrompt} label="Lovable 프롬프트" language="prompt" />
       </section>
 
-      {/* ===== JSON-LD 템플릿 ===== */}
+      {/* JSON-LD 템플릿 */}
       <section className="guide-section">
         <SectionHeading tag="h2">JSON-LD 템플릿</SectionHeading>
         <div className="space-y-3">
@@ -402,7 +378,7 @@ SEO: 지역+진료과목 키워드, NAP 일관성, canonical 적용`;
         </div>
       </section>
 
-      {/* ===== 하단 링크 ===== */}
+      {/* 하단 링크 */}
       <div className="guide-section text-center">
         <div className="flex flex-wrap justify-center gap-3">
           <Link to="/client-brief" className="border border-border px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-secondary transition-colors">← 브리프 수정</Link>
