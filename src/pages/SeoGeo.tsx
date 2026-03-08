@@ -27,8 +27,8 @@ export default function SeoGeo() {
         SEO / GEO 가이드
       </SectionHeading>
 
-      {/* 빠른 요약 */}
-      <div className="guide-notice-info mb-8">
+      {/* 핵심 요약 */}
+      <div className="guide-notice-info mb-6">
         <p className="text-sm font-semibold mb-1">📋 빠른 적용 포인트</p>
         <ul className="text-sm space-y-0.5">
           <li>• 모든 페이지에 고유 title / description / canonical / OG 메타 적용</li>
@@ -37,6 +37,22 @@ export default function SeoGeo() {
           <li>• 지역+진료과 키워드 H1에 포함</li>
         </ul>
       </div>
+
+      <PageToc items={[
+        { id: "meta-template", label: "메타 타이틀 & 디스크립션 템플릿" },
+        { id: "canonical", label: "Canonical URL 전략" },
+        { id: "url-structure", label: "URL 구조 예시" },
+        { id: "heading-hierarchy", label: "Heading Hierarchy 규칙" },
+        { id: "local-landing", label: "지역 기반 랜딩 페이지 설계" },
+        { id: "internal-link", label: "내부 링크 전략" },
+        { id: "nap", label: "NAP 일관성" },
+        { id: "json-ld", label: "구조화 데이터 (JSON-LD)" },
+        { id: "og-twitter", label: "Open Graph & Twitter" },
+        { id: "sitemap", label: "Sitemap 구조" },
+        { id: "robots", label: "robots.txt" },
+        { id: "ai-search", label: "AI 검색 최적화" },
+        { id: "tech-seo", label: "기술 SEO 체크리스트" },
+      ]} />
 
       {/* 메타 타이틀/디스크립션 */}
       <section className="guide-section">
