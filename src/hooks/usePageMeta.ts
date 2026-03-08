@@ -60,7 +60,7 @@ export function usePageMeta() {
     setMeta("name", "twitter:description", meta.ogDescription || meta.description);
     setMeta("name", "twitter:image", ogImageUrl);
 
-    // JSON-LD
+    // JSON-LD (page-specific)
     const existingLd = document.querySelector('script[data-page-jsonld]');
     if (existingLd) existingLd.remove();
     if (meta.jsonLd) {
@@ -68,6 +68,27 @@ export function usePageMeta() {
       script.type = "application/ld+json";
       script.setAttribute("data-page-jsonld", "true");
       script.textContent = JSON.stringify(meta.jsonLd);
+      document.head.appendChild(script);
+    }
+
+    // BreadcrumbList JSON-LD
+    const existingBc = document.querySelector('script[data-breadcrumb-jsonld]');
+    if (existingBc) existingBc.remove();
+    if (meta.breadcrumb && meta.breadcrumb.length > 0) {
+      const bcLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: meta.breadcrumb.map((item, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: item.name,
+          item: `${BASE_URL}${item.url === "/" ? "" : item.url}`,
+        })),
+      };
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.setAttribute("data-breadcrumb-jsonld", "true");
+      script.textContent = JSON.stringify(bcLd);
       document.head.appendChild(script);
     }
   }, [pathname]);
