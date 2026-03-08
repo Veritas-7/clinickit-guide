@@ -90,7 +90,7 @@ export default function ComplianceGuide() {
       </section>
 
       {/* 영역별 상세 검토표 */}
-      <section className="guide-section">
+      <section id="detail-table" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2" sub="각 영역별 검토 포인트, 허용/주의/금지 표현 비교">
           영역별 상세 검토표
         </SectionHeading>
