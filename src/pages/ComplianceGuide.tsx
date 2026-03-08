@@ -146,7 +146,7 @@ export default function ComplianceGuide() {
       </section>
 
       {/* 광고성 vs 정보성 */}
-      <section className="guide-section">
+      <section id="ad-vs-info" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">광고성 카피 vs 정보성 카피 구분</SectionHeading>
         <div className="overflow-x-auto">
           <table className="guide-table">
