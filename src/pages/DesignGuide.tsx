@@ -26,6 +26,7 @@ const typoScale = [
 ];
 
 export default function DesignGuide() {
+  const { pathname } = useLocation();
   return (
     <div>
       <SectionHeading
