@@ -1,5 +1,7 @@
 import { SectionHeading } from "@/components/SectionHeading";
 import { CheckItem } from "@/components/CheckItem";
+import { PageNavigation } from "@/components/PageNavigation";
+import { useLocation } from "react-router-dom";
 import { AlertTriangle, TrendingUp, Users, Building, MapPin } from "lucide-react";
 
 export default function IndustryOverview() {
