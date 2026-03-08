@@ -294,7 +294,7 @@ export default function SeoGeo() {
       </section>
 
       {/* Sitemap 구조 */}
-      <section className="guide-section">
+      <section id="sitemap" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">Sitemap 구조 예시</SectionHeading>
         <div className="guide-card">
           <div className="overflow-x-auto">
