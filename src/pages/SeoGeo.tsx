@@ -87,7 +87,7 @@ export default function SeoGeo() {
       </section>
 
       {/* Canonical 전략 */}
-      <section className="guide-section">
+      <section id="canonical" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">Canonical URL 전략</SectionHeading>
         <div className="guide-card">
           <div className="space-y-2 text-sm">
