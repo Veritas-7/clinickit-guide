@@ -108,6 +108,8 @@ export default function PageTemplates() {
           </div>
         </section>
       ))}
+
+      <PageNavigation currentPath={pathname} />
     </div>
   );
 }
