@@ -1,6 +1,7 @@
 import { SectionHeading } from "@/components/SectionHeading";
 import { CheckItem } from "@/components/CheckItem";
-import { jsonLdTemplates, sitemapStructure, routeMeta } from "@/data/seoConfig";
+import { PageNavigation } from "@/components/PageNavigation";
+import { useLocation } from "react-router-dom";
 
 function CodeBlock({ title, code, lang = "json" }: { title: string; code: string; lang?: string }) {
   return (
