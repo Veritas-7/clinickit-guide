@@ -59,6 +59,7 @@ function ChecklistSection({ title, items }: ChecklistSectionProps) {
 }
 
 export default function Checklist() {
+  const { pathname } = useLocation();
   return (
     <div>
       <SectionHeading
