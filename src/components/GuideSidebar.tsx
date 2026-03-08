@@ -60,7 +60,7 @@ export function GuideSidebar() {
               </div>
             </div>
           )}
-          <SidebarGroupLabel>가이드 메뉴</SidebarGroupLabel>
+          <SidebarGroupLabel>{currentConfig.nameShort} 가이드 메뉴</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderItems(guideItems)}</SidebarMenu>
           </SidebarGroupContent>
