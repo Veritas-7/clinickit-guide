@@ -4,6 +4,7 @@ import {
   Building2, Palette, Component, Route, FileText, PenTool,
   ShieldCheck, Search, CheckSquare, Phone, Clock, MapPin,
   Users, Stethoscope, CalendarCheck, Smartphone, Heart, Shield,
+  ClipboardList, Map, Settings,
 } from "lucide-react";
 
 const quickNav = [
@@ -11,11 +12,17 @@ const quickNav = [
   { title: "Design Guide", desc: "컬러, 타이포, 간격, 이미지 스타일 기준", icon: <Palette className="h-5 w-5" />, to: "/design-guide" },
   { title: "UI Guide", desc: "헤더, 카드, CTA, 폼 등 핵심 UI 패턴", icon: <Component className="h-5 w-5" />, to: "/ui-guide" },
   { title: "UX Guide", desc: "사용자 여정, 정보 위계, 전환 흐름", icon: <Route className="h-5 w-5" />, to: "/ux-guide" },
-  { title: "Page Templates", desc: "홈, 진료과목, 의료진, 예약 등 템플릿", icon: <FileText className="h-5 w-5" />, to: "/page-templates" },
+  { title: "Page Templates", desc: "블록 기반 페이지 템플릿 시스템", icon: <FileText className="h-5 w-5" />, to: "/page-templates" },
   { title: "Content Guide", desc: "카피 톤, 문장 템플릿, 금지 표현", icon: <PenTool className="h-5 w-5" />, to: "/content-guide" },
   { title: "Compliance", desc: "법률/광고 검토 포인트와 체크리스트", icon: <ShieldCheck className="h-5 w-5" />, to: "/compliance-guide" },
   { title: "SEO/GEO", desc: "메타, 구조화 데이터, 로컬 SEO 전략", icon: <Search className="h-5 w-5" />, to: "/seo-geo" },
   { title: "Checklist", desc: "제작 전/후 실무 점검 체크리스트", icon: <CheckSquare className="h-5 w-5" />, to: "/checklist" },
+];
+
+const toolNav = [
+  { title: "Client Brief", desc: "고객사 정보 수집 및 브리프 정리 도구", icon: <ClipboardList className="h-5 w-5" />, to: "/client-brief" },
+  { title: "Site Blueprint", desc: "브리프 기반 사이트 구조 자동 도출", icon: <Map className="h-5 w-5" />, to: "/site-blueprint" },
+  { title: "Implementation Rules", desc: "조건별 템플릿 선택, CTA 분기, 축소 구조", icon: <Settings className="h-5 w-5" />, to: "/implementation-rules" },
 ];
 
 const coreInfo = [
@@ -39,10 +46,10 @@ export default function Index() {
     <div>
       {/* Hero */}
       <section className="mb-12">
-        <div className="guide-badge-info mb-4">내부 제작 기준서 v1.0</div>
+        <div className="guide-badge-info mb-4">내부 제작 기준서 v2.0</div>
         <SectionHeading
           tag="h1"
-          sub="병원·의원 업종 고객사 프로젝트를 빠르고 일관성 있게 제작하기 위한 내부용 가이드. 디자인 시스템, UI/UX 패턴, 페이지 템플릿, 콘텐츠 가이드, 컴플라이언스 체크포인트, SEO/GEO 전략까지 한 곳에서 참조할 수 있습니다."
+          sub="병원·의원 업종 고객사 프로젝트를 빠르고 일관성 있게 제작하기 위한 내부용 가이드 시스템. 디자인 시스템, UI/UX 패턴, 블록 기반 페이지 템플릿, 콘텐츠 가이드, 컴플라이언스 체크포인트, SEO/GEO 전략, 고객사 브리프 도구, 사이트 블루프린트 생성까지 한 곳에서 참조할 수 있습니다."
         >
           병원/의원 웹사이트 제작 가이드
         </SectionHeading>
@@ -84,7 +91,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* 빠른 이동 */}
+      {/* 가이드 메뉴 */}
       <section className="guide-section">
         <SectionHeading tag="h2" sub="각 가이드 섹션으로 빠르게 이동하세요">
           가이드 구성
@@ -96,7 +103,19 @@ export default function Index() {
         </div>
       </section>
 
-      {/* 공개용 병원/의원 사이트 대표 구조 */}
+      {/* 제작 도구 */}
+      <section className="guide-section">
+        <SectionHeading tag="h2" sub="고객사 브리프 정리부터 사이트 구조 도출까지">
+          제작 도구
+        </SectionHeading>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {toolNav.map((item) => (
+            <GuideCard key={item.to} title={item.title} description={item.desc} icon={item.icon} to={item.to} variant="accent" />
+          ))}
+        </div>
+      </section>
+
+      {/* 공개용 사이트 추천 구조 */}
       <section className="guide-section">
         <SectionHeading tag="h2" sub="실제 고객사 병원/의원 홈페이지의 권장 섹션 순서">
           공개용 사이트 추천 구조
@@ -117,9 +136,7 @@ export default function Index() {
               "Footer — 병원 정보, 법적 고지, 사이트맵",
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="flex-shrink-0 h-6 w-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-semibold">
-                  {i + 1}
-                </span>
+                <span className="flex-shrink-0 h-6 w-6 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center text-xs font-semibold">{i + 1}</span>
                 <span className="text-foreground/85">{item}</span>
               </li>
             ))}
@@ -134,19 +151,17 @@ export default function Index() {
         </SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { step: "1", title: "업종/고객 리서치", desc: "진료과, 타깃 환자층, 지역, 경쟁 분석" },
-            { step: "2", title: "정보 구조 설계", desc: "페이지 구성, 메뉴 구조, 콘텐츠 수집 목록" },
+            { step: "1", title: "고객사 브리프 수집", desc: "Client Brief 도구로 병원 정보, 진료과, 브랜드 톤 정리" },
+            { step: "2", title: "사이트 블루프린트 생성", desc: "브리프 기반 사이트 유형, 페이지 구조, CTA 전략 도출" },
             { step: "3", title: "디자인 시스템 적용", desc: "컬러, 타이포, 컴포넌트 토큰 설정" },
-            { step: "4", title: "페이지 템플릿 적용", desc: "홈, 진료과목, 의료진, 예약 등 핵심 페이지" },
+            { step: "4", title: "블록 기반 템플릿 적용", desc: "필수/선택/조건부 블록으로 페이지 조립" },
             { step: "5", title: "콘텐츠 작성·검수", desc: "카피 작성, 이미지 준비, 컴플라이언스 검토" },
             { step: "6", title: "SEO/GEO 최적화", desc: "메타, 구조화 데이터, 로컬 정보 일관성" },
             { step: "7", title: "QA 및 체크리스트", desc: "반응형, 접근성, 성능, 법률 최종 점검" },
             { step: "8", title: "런칭 및 모니터링", desc: "배포, 서치콘솔 등록, 초기 성과 모니터링" },
           ].map((item) => (
             <div key={item.step} className="guide-card flex items-start gap-3">
-              <span className="flex-shrink-0 h-8 w-8 rounded-lg bg-accent text-accent-foreground flex items-center justify-center text-sm font-bold">
-                {item.step}
-              </span>
+              <span className="flex-shrink-0 h-8 w-8 rounded-lg bg-accent text-accent-foreground flex items-center justify-center text-sm font-bold">{item.step}</span>
               <div>
                 <p className="font-semibold text-sm text-card-foreground">{item.title}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
@@ -156,7 +171,7 @@ export default function Index() {
         </div>
       </section>
 
-      {/* 모바일 우선 요약 */}
+      {/* 모바일 우선 */}
       <section className="guide-section">
         <SectionHeading tag="h2" sub="의원급 사이트 방문의 80% 이상이 모바일에서 발생합니다">
           모바일 우선 설계 요약
@@ -179,8 +194,11 @@ export default function Index() {
           각 가이드 섹션에서 상세 기준과 예시를 확인하세요.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
+          <a href="/client-brief" className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground hover:opacity-90 transition-opacity">
+            고객사 브리프 시작
+          </a>
           <a href="/design-guide" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity">
-            디자인 가이드 시작
+            디자인 가이드 보기
           </a>
           <a href="/checklist" className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-medium text-card-foreground hover:bg-secondary transition-colors">
             체크리스트 보기
