@@ -183,7 +183,7 @@ export default function SeoGeo() {
       </section>
 
       {/* 내부 링크 맵 */}
-      <section className="guide-section">
+      <section id="internal-link" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">내부 링크 전략</SectionHeading>
         <div className="guide-card">
           <p className="text-sm text-muted-foreground mb-3">페이지 간 상호 연결로 검색엔진과 사용자 모두의 탐색성을 높입니다.</p>
