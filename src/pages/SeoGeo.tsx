@@ -1,6 +1,7 @@
 import { SectionHeading } from "@/components/SectionHeading";
 import { CheckItem } from "@/components/CheckItem";
 import { PageNavigation } from "@/components/PageNavigation";
+import { PageToc } from "@/components/PageToc";
 import { useLocation } from "react-router-dom";
 import { jsonLdTemplates, sitemapStructure } from "@/data/seoConfig";
 
@@ -26,8 +27,8 @@ export default function SeoGeo() {
         SEO / GEO 가이드
       </SectionHeading>
 
-      {/* 빠른 요약 */}
-      <div className="guide-notice-info mb-8">
+      {/* 핵심 요약 */}
+      <div className="guide-notice-info mb-6">
         <p className="text-sm font-semibold mb-1">📋 빠른 적용 포인트</p>
         <ul className="text-sm space-y-0.5">
           <li>• 모든 페이지에 고유 title / description / canonical / OG 메타 적용</li>
@@ -37,8 +38,24 @@ export default function SeoGeo() {
         </ul>
       </div>
 
+      <PageToc items={[
+        { id: "meta-template", label: "메타 타이틀 & 디스크립션 템플릿" },
+        { id: "canonical", label: "Canonical URL 전략" },
+        { id: "url-structure", label: "URL 구조 예시" },
+        { id: "heading-hierarchy", label: "Heading Hierarchy 규칙" },
+        { id: "local-landing", label: "지역 기반 랜딩 페이지 설계" },
+        { id: "internal-link", label: "내부 링크 전략" },
+        { id: "nap", label: "NAP 일관성" },
+        { id: "json-ld", label: "구조화 데이터 (JSON-LD)" },
+        { id: "og-twitter", label: "Open Graph & Twitter" },
+        { id: "sitemap", label: "Sitemap 구조" },
+        { id: "robots", label: "robots.txt" },
+        { id: "ai-search", label: "AI 검색 최적화" },
+        { id: "tech-seo", label: "기술 SEO 체크리스트" },
+      ]} />
+
       {/* 메타 타이틀/디스크립션 */}
-      <section className="guide-section">
+      <section id="meta-template" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2" sub="각 페이지별 권장 메타 데이터 구조">
           메타 타이틀 & 디스크립션 템플릿
         </SectionHeading>
@@ -70,7 +87,7 @@ export default function SeoGeo() {
       </section>
 
       {/* Canonical 전략 */}
-      <section className="guide-section">
+      <section id="canonical" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">Canonical URL 전략</SectionHeading>
         <div className="guide-card">
           <div className="space-y-2 text-sm">
@@ -87,7 +104,7 @@ export default function SeoGeo() {
       </section>
 
       {/* URL 구조 */}
-      <section className="guide-section">
+      <section id="url-structure" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">URL 구조 예시</SectionHeading>
         <div className="guide-card">
           <div className="space-y-1 text-sm font-mono">
@@ -118,7 +135,7 @@ export default function SeoGeo() {
       </section>
 
       {/* H1/H2/H3 규칙 */}
-      <section className="guide-section">
+      <section id="heading-hierarchy" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">Heading Hierarchy 규칙</SectionHeading>
         <div className="guide-card">
           <ul className="space-y-1">
@@ -145,7 +162,7 @@ export default function SeoGeo() {
       </section>
 
       {/* 지역 기반 페이지 구조 */}
-      <section className="guide-section">
+      <section id="local-landing" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2" sub="지역+키워드 조합으로 검색 유입을 최적화합니다">
           지역 기반 랜딩 페이지 설계
         </SectionHeading>
@@ -166,7 +183,7 @@ export default function SeoGeo() {
       </section>
 
       {/* 내부 링크 맵 */}
-      <section className="guide-section">
+      <section id="internal-link" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">내부 링크 전략</SectionHeading>
         <div className="guide-card">
           <p className="text-sm text-muted-foreground mb-3">페이지 간 상호 연결로 검색엔진과 사용자 모두의 탐색성을 높입니다.</p>
@@ -189,7 +206,7 @@ export default function SeoGeo() {
       </section>
 
       {/* NAP 일관성 */}
-      <section className="guide-section">
+      <section id="nap" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">NAP (Name / Address / Phone) 일관성</SectionHeading>
         <div className="guide-notice-info">
           <ul className="space-y-2 text-sm">
@@ -217,7 +234,7 @@ export default function SeoGeo() {
       </section>
 
       {/* 구조화 데이터 JSON-LD */}
-      <section className="guide-section">
+      <section id="json-ld" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2" sub="실제 프로젝트에 복사·수정하여 사용할 수 있는 JSON-LD 템플릿">
           구조화 데이터 (JSON-LD) 템플릿
         </SectionHeading>
@@ -252,7 +269,7 @@ export default function SeoGeo() {
       </section>
 
       {/* Open Graph / Twitter */}
-      <section className="guide-section">
+      <section id="og-twitter" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">Open Graph & Twitter 메타</SectionHeading>
         <div className="guide-card">
           <CodeBlock
@@ -277,7 +294,7 @@ export default function SeoGeo() {
       </section>
 
       {/* Sitemap 구조 */}
-      <section className="guide-section">
+      <section id="sitemap" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">Sitemap 구조 예시</SectionHeading>
         <div className="guide-card">
           <div className="overflow-x-auto">
@@ -300,7 +317,7 @@ export default function SeoGeo() {
       </section>
 
       {/* robots.txt */}
-      <section className="guide-section">
+      <section id="robots" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">robots.txt 예시</SectionHeading>
         <CodeBlock
           title="robots.txt"
@@ -315,7 +332,7 @@ Sitemap: https://www.example-clinic.com/sitemap.xml`}
       </section>
 
       {/* AI 검색 최적화 */}
-      <section className="guide-section">
+      <section id="ai-search" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">AI 검색/요약에 유리한 콘텐츠 구조</SectionHeading>
         <div className="guide-notice-success">
           <ul className="space-y-2 text-sm">
@@ -341,7 +358,7 @@ Sitemap: https://www.example-clinic.com/sitemap.xml`}
       </section>
 
       {/* 기술 SEO 체크리스트 */}
-      <section className="guide-section">
+      <section id="tech-seo" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">기술 SEO 체크리스트</SectionHeading>
         <div className="guide-card">
           <ul className="space-y-1">

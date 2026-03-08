@@ -60,14 +60,14 @@ export function GuideSidebar() {
               </div>
             </div>
           )}
-          <SidebarGroupLabel>가이드 메뉴</SidebarGroupLabel>
+          <SidebarGroupLabel>{currentConfig.nameShort} 가이드 메뉴</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderItems(guideItems)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>제작 도구</SidebarGroupLabel>
+          <SidebarGroupLabel>{currentConfig.nameShort} 제작 도구</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderItems(toolItems)}</SidebarMenu>
           </SidebarGroupContent>

@@ -1,5 +1,6 @@
 import { SectionHeading } from "@/components/SectionHeading";
 import { PageNavigation } from "@/components/PageNavigation";
+import { PageToc } from "@/components/PageToc";
 import { uiComponents, type UiComponentDef } from "@/data/uiComponentDefinitions";
 import { Phone, Clock, MapPin, Calendar, ChevronRight, ChevronDown, Star, Menu, ArrowRight, Search, AlertCircle, CheckCircle2, XCircle, Image, FileText, Navigation, Hash } from "lucide-react";
 import { useState } from "react";
@@ -318,6 +319,11 @@ export default function UiGuide() {
           <li>• 예시 데이터는 실제 병원 정보가 아닙니다</li>
         </ul>
       </div>
+
+      <PageToc items={[
+        { id: "quick-ref", label: "컴포넌트 빠른 참조표" },
+        { id: "demos", label: "컴포넌트 상세" },
+      ]} />
 
       {/* Quick reference table */}
       <section id="quick-ref" className="guide-section">

@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PageNavigation } from "@/components/PageNavigation";
+import { PageToc } from "@/components/PageToc";
 import { CheckItem } from "@/components/CheckItem";
 import {
   complianceAreas,
@@ -17,6 +18,16 @@ const riskBadge: Record<RiskLevel, { text: string; cls: string }> = {
   critical: { text: "매우 높음", cls: "guide-badge-emergency" },
 };
 
+const tocItems = [
+  { id: "label-system", label: "검토 필요 라벨 시스템" },
+  { id: "detail-table", label: "영역별 상세 검토표" },
+  { id: "ad-vs-info", label: "광고성 vs 정보성 구분" },
+  { id: "page-review", label: "페이지별 검토 필요 요소" },
+  { id: "prelaunch", label: "출시 전 법률/광고 검수 플로우" },
+  { id: "recheck", label: "운영 중 재검토 포인트" },
+  { id: "ad-landing", label: "외부 광고 랜딩 점검" },
+];
+
 export default function ComplianceGuide() {
   const { pathname } = useLocation();
   return (
@@ -28,10 +39,23 @@ export default function ComplianceGuide() {
         컴플라이언스 가이드
       </SectionHeading>
 
-      <div className="guide-notice-review mb-8">
+      {/* 핵심 요약 */}
+      <div className="guide-notice-review mb-6">
         <p className="text-sm font-semibold">⚠️ 면책 안내</p>
         <p className="text-sm mt-1">이 가이드는 실무자가 "어디를 반드시 검토받아야 하는지" 한눈에 이해하도록 구조화한 것입니다. 법률 자문을 대체하지 않으며, 최종 법률 검토는 전문가에게 의뢰해야 합니다.</p>
       </div>
+
+      <div className="guide-notice-info mb-6">
+        <p className="text-sm font-semibold mb-1">📋 빠른 적용 포인트</p>
+        <ul className="text-sm space-y-0.5">
+          <li>• 의료광고 사전심의 대상 여부를 반드시 확인</li>
+          <li>• "최고/최초/유일" 등 비교·단정 표현 사용 금지</li>
+          <li>• 비급여 가격 고지는 필수, 이벤트 표현은 제한적</li>
+          <li>• 환자 후기/전후 사진은 가장 높은 검토 수준 적용</li>
+        </ul>
+      </div>
+
+      <PageToc items={tocItems} />
 
       {/* 빠른 요약 보드 */}
       <div className="guide-notice-info mb-8">
@@ -52,7 +76,7 @@ export default function ComplianceGuide() {
       </div>
 
       {/* 검토 라벨 시스템 */}
-      <section className="guide-section">
+      <section id="label-system" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">검토 필요 라벨 시스템</SectionHeading>
         <div className="guide-card">
           <p className="text-sm text-muted-foreground mb-3">각 컴포넌트와 콘텐츠 영역에 아래 라벨을 부착하여 검토 필요 여부를 한눈에 파악합니다.</p>
@@ -66,7 +90,7 @@ export default function ComplianceGuide() {
       </section>
 
       {/* 영역별 상세 검토표 */}
-      <section className="guide-section">
+      <section id="detail-table" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2" sub="각 영역별 검토 포인트, 허용/주의/금지 표현 비교">
           영역별 상세 검토표
         </SectionHeading>
@@ -122,7 +146,7 @@ export default function ComplianceGuide() {
       </section>
 
       {/* 광고성 vs 정보성 */}
-      <section className="guide-section">
+      <section id="ad-vs-info" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">광고성 카피 vs 정보성 카피 구분</SectionHeading>
         <div className="overflow-x-auto">
           <table className="guide-table">
@@ -156,7 +180,7 @@ export default function ComplianceGuide() {
       </section>
 
       {/* 페이지별 검토 요소 */}
-      <section className="guide-section">
+      <section id="page-review" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">페이지별 검토 필요 요소</SectionHeading>
         <div className="overflow-x-auto">
           <table className="guide-table">
@@ -187,7 +211,7 @@ export default function ComplianceGuide() {
       </section>
 
       {/* 출시 전 검수 플로우 */}
-      <section className="guide-section">
+      <section id="prelaunch" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">출시 전 법률/광고 검수 플로우</SectionHeading>
         <div className="guide-card">
           <ol className="space-y-3 text-sm">
@@ -205,7 +229,7 @@ export default function ComplianceGuide() {
       </section>
 
       {/* 운영 중 재검토 */}
-      <section className="guide-section">
+      <section id="recheck" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">운영 중 콘텐츠 수정 시 재검토 포인트</SectionHeading>
         <div className="overflow-x-auto">
           <table className="guide-table">
@@ -231,7 +255,7 @@ export default function ComplianceGuide() {
       </section>
 
       {/* 외부 광고 연결 */}
-      <section className="guide-section">
+      <section id="ad-landing" className="guide-section scroll-mt-20">
         <SectionHeading tag="h2">외부 광고 랜딩 연결 시 점검 항목</SectionHeading>
         <div className="guide-card">
           <ul className="space-y-1">

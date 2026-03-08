@@ -15,7 +15,7 @@ export function GuideLayout({ children }: GuideLayoutProps) {
         <GuideSidebar />
         <div className="flex-1 flex flex-col min-w-0">
           {/* Skip Link */}
-          <a
+           <a
             href="#main-content"
             className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:text-sm focus:font-medium"
           >
@@ -24,7 +24,7 @@ export function GuideLayout({ children }: GuideLayoutProps) {
           <header role="banner" className="h-12 flex items-center border-b border-border bg-card sticky top-0 z-30">
             <SidebarTrigger className="ml-3" />
             <span className="ml-3 text-sm font-medium text-muted-foreground hidden sm:inline">
-              {currentConfig.name} 웹사이트 제작 가이드
+              {currentConfig.name} {currentConfig.brandSubtitle} {currentConfig.version}
             </span>
             <div className="ml-auto mr-3">
               <CommandSearch />
