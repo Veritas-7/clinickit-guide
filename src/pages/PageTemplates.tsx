@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PageNavigation } from "@/components/PageNavigation";
+import { PageToc, type TocItem } from "@/components/PageToc";
 import { pageTemplates, type TemplateBlock, type BlockType } from "@/data/templateBlueprints";
 
 const blockTypeLabel: Record<BlockType, { text: string; class: string }> = {
@@ -15,6 +16,11 @@ const complianceLabel: Record<string, { text: string; class: string }> = {
   review: { text: "검토 필요", class: "guide-badge-review" },
 };
 
+const tocItems: TocItem[] = pageTemplates.map(t => ({
+  id: `template-${t.id}`,
+  label: `${t.emoji} ${t.name}`,
+}));
+
 export default function PageTemplates() {
   const { pathname } = useLocation();
   return (
@@ -26,8 +32,17 @@ export default function PageTemplates() {
         페이지 템플릿
       </SectionHeading>
 
-      <div className="guide-notice-info mb-8">
-        <p className="text-sm font-semibold mb-1">📋 빠른 적용 포인트</p>
+      <div className="guide-notice-info mb-6">
+        <p className="text-sm font-semibold mb-1">📋 핵심 요약</p>
+        <ul className="text-sm space-y-0.5">
+          <li>• 총 <strong>{pageTemplates.length}개</strong> 페이지 유형, 블록 기반 조립 시스템</li>
+          <li>• 각 페이지별 필수/선택/조건부/금지 블록 명시</li>
+          <li>• CTA, 신뢰 요소, 모바일 규칙, SEO, 컴플라이언스 포인트 포함</li>
+        </ul>
+      </div>
+
+      <div className="guide-notice-success mb-8">
+        <p className="text-sm font-semibold mb-1">⚡ 빠른 적용 포인트</p>
         <ul className="text-sm space-y-0.5">
           <li>• <span className="guide-badge-info text-[10px]">필수</span> 블록은 어떤 조건에서도 포함</li>
           <li>• <span className="guide-badge-success text-[10px]">선택</span> 블록은 콘텐츠 보유 시 추가</li>
@@ -36,13 +51,14 @@ export default function PageTemplates() {
         </ul>
       </div>
 
+      <PageToc items={tocItems} />
+
       {pageTemplates.map(template => (
-        <section key={template.id} className="guide-section">
+        <section key={template.id} id={`template-${template.id}`} className="guide-section scroll-mt-16">
           <SectionHeading tag="h2" sub={template.description}>
             {template.emoji} {template.name}
           </SectionHeading>
 
-          {/* 블록 목록 */}
           <div className="guide-card mb-4">
             <h3 className="font-semibold text-sm text-card-foreground mb-3">블록 구조</h3>
             <div className="space-y-2">
@@ -76,7 +92,6 @@ export default function PageTemplates() {
             </div>
           </div>
 
-          {/* 메타 정보 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="guide-card">
               <h4 className="font-semibold text-xs text-card-foreground mb-2">CTA & 신뢰 요소</h4>

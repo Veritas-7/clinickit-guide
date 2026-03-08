@@ -2,6 +2,20 @@ import { useLocation } from "react-router-dom";
 import { SectionHeading } from "@/components/SectionHeading";
 import { CheckItem } from "@/components/CheckItem";
 import { PageNavigation } from "@/components/PageNavigation";
+import { PageToc, type TocItem } from "@/components/PageToc";
+
+const tocItems: TocItem[] = [
+  { id: "journey", label: "대표 사용자 여정" },
+  { id: "visit-purpose", label: "방문 목적별 UX 분기" },
+  { id: "above-fold", label: "Above the Fold 정보" },
+  { id: "cta-rules", label: "CTA 배치 원칙" },
+  { id: "mobile-ux", label: "모바일 UX 우선순위" },
+  { id: "trust-placement", label: "의료진 신뢰 요소 배치" },
+  { id: "form-strategy", label: "폼 최소화 전략" },
+  { id: "microcopy", label: "환자 안심 마이크로카피" },
+  { id: "bounce", label: "이탈 지점과 개선" },
+  { id: "summary", label: "핵심 UX 원칙 요약" },
+];
 
 export default function UxGuide() {
   const { pathname } = useLocation();
@@ -14,8 +28,29 @@ export default function UxGuide() {
         UX 가이드
       </SectionHeading>
 
-      {/* 사용자 여정 */}
-      <section className="guide-section">
+      <div className="guide-notice-info mb-6">
+        <p className="text-sm font-semibold mb-1">📋 핵심 요약</p>
+        <ul className="text-sm space-y-0.5">
+          <li>• 3초 내에 "무슨 곳 / 어디 / 지금 뭘 할 수 있는지" 전달</li>
+          <li>• 모바일 80%+ → 하단 고정 CTA 바 필수</li>
+          <li>• CTA: "예약하기", "전화 문의" 등 구체적 문구만 사용</li>
+          <li>• 감성 연출보다 정보 구조와 신뢰가 우선</li>
+        </ul>
+      </div>
+
+      <div className="guide-notice-success mb-8">
+        <p className="text-sm font-semibold mb-1">⚡ 빠른 적용 포인트</p>
+        <ul className="text-sm space-y-0.5">
+          <li>• 히어로: 진료과+지역+CTA (이미지 슬라이더 X)</li>
+          <li>• 전화 CTA: tel: 링크, 모바일 하단 바 필수</li>
+          <li>• 예약 폼: 최소 필드 (이름, 연락처, 희망일시)</li>
+          <li>• 지도: 탭 시 네이버 지도/카카오맵 앱 연동</li>
+        </ul>
+      </div>
+
+      <PageToc items={tocItems} />
+
+      <section id="journey" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2" sub="대부분의 방문자는 아래 흐름 중 하나를 따릅니다">
           대표 사용자 여정
         </SectionHeading>
@@ -40,8 +75,7 @@ export default function UxGuide() {
         </div>
       </section>
 
-      {/* 방문 목적별 UX 분기 */}
-      <section className="guide-section">
+      <section id="visit-purpose" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">방문 목적별 UX 분기</SectionHeading>
         <div className="overflow-x-auto">
           <table className="guide-table">
@@ -59,8 +93,7 @@ export default function UxGuide() {
         </div>
       </section>
 
-      {/* Above the fold */}
-      <section className="guide-section">
+      <section id="above-fold" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2" sub="첫 화면(스크롤 전)에서 반드시 전달해야 하는 정보">
           Above the Fold 정보 우선순위
         </SectionHeading>
@@ -73,12 +106,11 @@ export default function UxGuide() {
           </ol>
         </div>
         <div className="guide-notice-warning mt-4">
-          <p className="text-sm"><strong>주의:</strong> 이미지 슬라이더, 원장 인사말, 수상 이력 등은 첫 화면의 핵심 정보를 밀어내면 안 됩니다. 이런 요소는 아래 섹션에 배치합니다.</p>
+          <p className="text-sm"><strong>주의:</strong> 이미지 슬라이더, 원장 인사말, 수상 이력 등은 첫 화면의 핵심 정보를 밀어내면 안 됩니다.</p>
         </div>
       </section>
 
-      {/* CTA 배치 원칙 */}
-      <section className="guide-section">
+      <section id="cta-rules" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">CTA 배치 원칙</SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="guide-card">
@@ -118,27 +150,24 @@ export default function UxGuide() {
         </div>
       </section>
 
-      {/* 모바일 UX */}
-      <section className="guide-section">
+      <section id="mobile-ux" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2" sub="의원급 사이트 방문의 80% 이상이 모바일입니다">
           모바일 UX 우선순위
         </SectionHeading>
         <div className="guide-notice-info">
           <ul className="space-y-2 text-sm">
-            <li>• 하단 고정 CTA 바 필수 (전화 / 예약 / 오시는 길)</li>
-            <li>• 전화번호 탭 → 즉시 발신</li>
-            <li>• 지도 탭 → 네이버 지도 / 카카오맵 앱 실행</li>
+            <li>• <span className="guide-badge-info text-[10px]">필수</span> 하단 고정 CTA 바 (전화 / 예약 / 오시는 길)</li>
+            <li>• <span className="guide-badge-info text-[10px]">필수</span> 전화번호 탭 → 즉시 발신</li>
+            <li>• <span className="guide-badge-info text-[10px]">필수</span> 지도 탭 → 네이버 지도 / 카카오맵 앱 실행</li>
             <li>• 진료시간은 스크롤 없이 확인 가능한 위치</li>
             <li>• 카드형 UI로 빠른 스캔</li>
-            <li>• 긴 텍스트보다 핵심 정보 + 더보기 구조</li>
             <li>• 폼 필드 최소화, 전화번호 키패드 자동 표시</li>
             <li>• 이미지 지연 로딩</li>
           </ul>
         </div>
       </section>
 
-      {/* 의료진 신뢰 요소 */}
-      <section className="guide-section">
+      <section id="trust-placement" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">의료진 신뢰 요소 배치 원칙</SectionHeading>
         <div className="guide-card">
           <ul className="space-y-1">
@@ -151,34 +180,25 @@ export default function UxGuide() {
         </div>
       </section>
 
-      {/* 폼 최소화 */}
-      <section className="guide-section">
+      <section id="form-strategy" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">폼 최소화 전략</SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="guide-card">
-            <h3 className="font-semibold text-sm mb-2 text-success">권장: 최소 필드</h3>
+            <h3 className="font-semibold text-sm mb-2 text-success">✓ 권장: 최소 필드</h3>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• 이름</li>
-              <li>• 연락처</li>
-              <li>• 희망 진료과 (선택)</li>
-              <li>• 희망 일시 (선택)</li>
-              <li>• 문의 내용 (간단 텍스트)</li>
+              <li>• 이름</li><li>• 연락처</li><li>• 희망 진료과 (선택)</li><li>• 희망 일시 (선택)</li><li>• 문의 내용 (간단 텍스트)</li>
             </ul>
           </div>
           <div className="guide-card">
-            <h3 className="font-semibold text-sm mb-2 text-emergency">지양: 과도한 필드</h3>
+            <h3 className="font-semibold text-sm mb-2 text-emergency">✗ 지양: 과도한 필드</h3>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• 주민등록번호</li>
-              <li>• 상세 병력 (전화로 안내)</li>
-              <li>• 주소 (불필요한 경우)</li>
-              <li>• 복잡한 드롭다운 다수</li>
+              <li>• 주민등록번호</li><li>• 상세 병력 (전화로 안내)</li><li>• 주소 (불필요한 경우)</li><li>• 복잡한 드롭다운 다수</li>
             </ul>
           </div>
         </div>
       </section>
 
-      {/* 마이크로카피 원칙 */}
-      <section className="guide-section">
+      <section id="microcopy" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">환자 불안을 줄이는 마이크로카피</SectionHeading>
         <div className="guide-card">
           <div className="space-y-3 text-sm">
@@ -197,14 +217,11 @@ export default function UxGuide() {
         </div>
       </section>
 
-      {/* 이탈 지점 */}
-      <section className="guide-section">
+      <section id="bounce" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">이탈이 많은 지점과 개선 방법</SectionHeading>
         <div className="overflow-x-auto">
           <table className="guide-table">
-            <thead>
-              <tr><th>이탈 지점</th><th>원인</th><th>개선 방법</th></tr>
-            </thead>
+            <thead><tr><th>이탈 지점</th><th>원인</th><th>개선 방법</th></tr></thead>
             <tbody>
               <tr><td>첫 화면</td><td>무슨 곳인지 불명확</td><td>진료과+지역+핵심 CTA 즉시 노출</td></tr>
               <tr><td>진료과목 페이지</td><td>정보 없이 이름만 나열</td><td>대상 환자, 주요 증상, 간단 설명 추가</td></tr>
@@ -215,8 +232,7 @@ export default function UxGuide() {
         </div>
       </section>
 
-      {/* 핵심 원칙 요약 */}
-      <section className="guide-section">
+      <section id="summary" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">핵심 UX 원칙 요약</SectionHeading>
         <div className="guide-notice-success">
           <ul className="space-y-2 text-sm">

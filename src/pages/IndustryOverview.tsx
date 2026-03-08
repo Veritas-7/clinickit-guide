@@ -1,8 +1,18 @@
 import { SectionHeading } from "@/components/SectionHeading";
 import { CheckItem } from "@/components/CheckItem";
 import { PageNavigation } from "@/components/PageNavigation";
+import { PageToc, type TocItem } from "@/components/PageToc";
 import { useLocation } from "react-router-dom";
-import { AlertTriangle, TrendingUp, Users, Building, MapPin } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
+
+const tocItems: TocItem[] = [
+  { id: "diff", label: "일반 서비스업과의 차이" },
+  { id: "priority", label: "정보 우선순위" },
+  { id: "trust", label: "신뢰 형성 요소" },
+  { id: "types", label: "의료기관 유형별 차이" },
+  { id: "fail-patterns", label: "자주 실패하는 패턴" },
+  { id: "conversion", label: "대표 전환 흐름" },
+];
 
 export default function IndustryOverview() {
   const { pathname } = useLocation();
@@ -15,17 +25,37 @@ export default function IndustryOverview() {
         병원/의원 업종 특성
       </SectionHeading>
 
+      {/* 핵심 요약 */}
+      <div className="guide-notice-info mb-6">
+        <p className="text-sm font-semibold mb-1">📋 핵심 요약</p>
+        <ul className="text-sm space-y-0.5">
+          <li>• 모바일 비중 80% 이상, 전화/예약 전환이 핵심 목표</li>
+          <li>• 신뢰 기준: 의료진 경력 → 진료과목 → 위치/시설</li>
+          <li>• 법적 제약: 의료법/의료광고 심의 기준 적용</li>
+          <li>• 지역 의존도 매우 높음 → 로컬 SEO 필수</li>
+        </ul>
+      </div>
+
+      {/* 빠른 적용 포인트 */}
+      <div className="guide-notice-success mb-8">
+        <p className="text-sm font-semibold mb-1">⚡ 빠른 적용 포인트</p>
+        <ul className="text-sm space-y-0.5">
+          <li>• 첫 화면에서 "무슨 진료 / 어디 / 전화·예약" 즉시 전달</li>
+          <li>• 하단 고정 CTA 바 (전화/예약/오시는 길) 필수 적용</li>
+          <li>• 의료진 프로필은 사실 기반만 (과장 금지, 스톡 사진 금지)</li>
+          <li>• 기관 유형(의원/병원/검진센터/전문클리닉)별 강조 포인트 구분</li>
+        </ul>
+      </div>
+
+      <PageToc items={tocItems} />
+
       {/* 일반 서비스업과의 차이 */}
-      <section className="guide-section">
+      <section id="diff" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">일반 서비스업 홈페이지와의 차이점</SectionHeading>
         <div className="overflow-x-auto">
           <table className="guide-table">
             <thead>
-              <tr>
-                <th>영역</th>
-                <th>일반 서비스업</th>
-                <th>병원/의원</th>
-              </tr>
+              <tr><th>영역</th><th>일반 서비스업</th><th>병원/의원</th></tr>
             </thead>
             <tbody>
               <tr><td>방문 목적</td><td>비교·쇼핑 탐색</td><td>즉각적 정보 확인 후 행동(전화/예약)</td></tr>
@@ -40,8 +70,8 @@ export default function IndustryOverview() {
         </div>
       </section>
 
-      {/* 사용자가 가장 먼저 확인하는 정보 */}
-      <section className="guide-section">
+      {/* 정보 우선순위 */}
+      <section id="priority" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2" sub="우선순위는 사용자의 실제 행동 패턴을 기반으로 합니다">
           정보 우선순위
         </SectionHeading>
@@ -63,7 +93,7 @@ export default function IndustryOverview() {
       </section>
 
       {/* 신뢰 형성 요소 */}
-      <section className="guide-section">
+      <section id="trust" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">신뢰 형성 요소</SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
@@ -83,18 +113,14 @@ export default function IndustryOverview() {
       </section>
 
       {/* 의료기관 유형별 차이 */}
-      <section className="guide-section">
+      <section id="types" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2" sub="동일한 가이드를 기반으로 하되, 유형별로 강조 포인트가 달라집니다">
           의료기관 유형별 차이
         </SectionHeading>
         <div className="overflow-x-auto">
           <table className="guide-table">
             <thead>
-              <tr>
-                <th>유형</th>
-                <th>핵심 강조점</th>
-                <th>주요 CTA</th>
-              </tr>
+              <tr><th>유형</th><th>핵심 강조점</th><th>주요 CTA</th></tr>
             </thead>
             <tbody>
               <tr><td>지역 의원형</td><td>접근성, 진료시간, 위치</td><td>전화, 오시는 길</td></tr>
@@ -105,12 +131,12 @@ export default function IndustryOverview() {
           </table>
         </div>
         <div className="guide-notice-info mt-4">
-          <p className="text-sm"><strong>확장 예정:</strong> 성형외과, 피부미용 시술 중심, 치과, 한의원, 대형 대학병원은 별도 분기 버전으로 추후 확장합니다. 이번 가이드는 일반적인 병원/의원형을 기본으로 합니다.</p>
+          <p className="text-sm"><strong>확장 예정:</strong> 성형외과, 피부미용 시술 중심, 치과, 한의원, 대형 대학병원은 별도 분기 버전으로 추후 확장합니다.</p>
         </div>
       </section>
 
       {/* 자주 실패하는 패턴 */}
-      <section className="guide-section">
+      <section id="fail-patterns" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2" badge={<span className="guide-badge-warning"><AlertTriangle className="h-3 w-3" /> 주의</span>}>
           자주 실패하는 패턴
         </SectionHeading>
@@ -132,7 +158,7 @@ export default function IndustryOverview() {
       </section>
 
       {/* 대표 전환 흐름 */}
-      <section className="guide-section">
+      <section id="conversion" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2" sub="병원/의원 사이트에서 방문자가 전환되는 대표적인 흐름">
           대표 전환 흐름
         </SectionHeading>
@@ -146,6 +172,7 @@ export default function IndustryOverview() {
           </div>
         </div>
       </section>
+
       <PageNavigation currentPath={pathname} />
     </div>
   );

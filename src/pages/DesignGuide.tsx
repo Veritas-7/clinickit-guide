@@ -1,6 +1,19 @@
 import { useLocation } from "react-router-dom";
 import { SectionHeading } from "@/components/SectionHeading";
 import { PageNavigation } from "@/components/PageNavigation";
+import { PageToc, type TocItem } from "@/components/PageToc";
+import { CopyBlock } from "@/components/CopyBlock";
+
+const tocItems: TocItem[] = [
+  { id: "tone", label: "브랜드 톤 & 비주얼 키워드" },
+  { id: "color", label: "컬러 시스템" },
+  { id: "typography", label: "타이포그래피" },
+  { id: "spacing", label: "간격 시스템" },
+  { id: "border-shadow", label: "라운드, 보더, 그림자" },
+  { id: "photo", label: "사진 & 이미지 스타일" },
+  { id: "a11y", label: "접근성 & 가독성" },
+  { id: "forbidden", label: "금지 시각 표현" },
+];
 
 const colorTokens = [
   { name: "Primary (Navy)", token: "--primary", hsl: "215 50% 23%", use: "주요 헤더, 버튼, 강조" },
@@ -39,7 +52,7 @@ export default function DesignGuide() {
       </SectionHeading>
 
       {/* 핵심 요약 */}
-      <div className="guide-notice-info mb-8">
+      <div className="guide-notice-info mb-6">
         <p className="text-sm font-semibold mb-1">📋 핵심 요약</p>
         <ul className="text-sm space-y-0.5">
           <li>• 네이비(Primary) + 틸(Accent) 컬러 시스템, HSL 토큰 기반</li>
@@ -48,7 +61,20 @@ export default function DesignGuide() {
           <li>• WCAG AA 대비 4.5:1 이상, 색상만으로 정보 구분 금지</li>
         </ul>
       </div>
-      <section className="guide-section">
+
+      {/* 빠른 적용 포인트 */}
+      <div className="guide-notice-success mb-8">
+        <p className="text-sm font-semibold mb-1">⚡ 빠른 적용 포인트</p>
+        <ul className="text-sm space-y-0.5">
+          <li>• CSS 변수(<code className="guide-code">--primary</code>, <code className="guide-code">--accent</code> 등)만 교체하면 전체 테마 변경 가능</li>
+          <li>• 간격은 4px 배수 시스템 (xs=4, sm=8, md=16, lg=24, xl=32)</li>
+          <li>• 의료진 사진 비율 3:4 / 시설 사진 비율 16:9</li>
+        </ul>
+      </div>
+
+      <PageToc items={tocItems} />
+
+      <section id="tone" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">브랜드 톤 & 비주얼 키워드</SectionHeading>
         <div className="flex flex-wrap gap-2 mb-4">
           {["Trustworthy", "Calm", "Precise", "Accessible", "Modern", "Reassuring", "Professional", "Information-driven", "Clean but warm"].map((kw) => (
@@ -62,7 +88,7 @@ export default function DesignGuide() {
       </section>
 
       {/* 컬러 시스템 */}
-      <section className="guide-section">
+      <section id="color" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2" sub="모든 컬러는 HSL 기반 CSS 변수(토큰)로 관리합니다">
           컬러 시스템
         </SectionHeading>
@@ -84,13 +110,23 @@ export default function DesignGuide() {
             </tbody>
           </table>
         </div>
+        <CopyBlock
+          label="CSS 변수 적용 예시"
+          language="CSS"
+          content={`:root {
+  --primary: 215 50% 23%;
+  --accent: 185 45% 38%;
+  --background: 210 20% 99%;
+  --surface: 210 15% 97%;
+}`}
+        />
         <div className="guide-notice-warning mt-4">
           <p className="text-sm"><strong>금지:</strong> 형광색, 과한 그라디언트, 과장된 시각효과. 의료기관 신뢰감을 해치는 컬러 사용을 피합니다.</p>
         </div>
       </section>
 
       {/* 타이포그래피 */}
-      <section className="guide-section">
+      <section id="typography" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2" sub="Noto Sans KR을 기본 서체로, Inter를 영문 보조 서체로 사용합니다">
           타이포그래피 시스템
         </SectionHeading>
@@ -112,10 +148,19 @@ export default function DesignGuide() {
             </tbody>
           </table>
         </div>
+        <CopyBlock
+          label="서체 적용 예시"
+          language="CSS"
+          content={`body {
+  font-family: 'Noto Sans KR', 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+}`}
+        />
       </section>
 
       {/* 간격 */}
-      <section className="guide-section">
+      <section id="spacing" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">간격 시스템 (Spacing)</SectionHeading>
         <div className="guide-card">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -140,7 +185,7 @@ export default function DesignGuide() {
       </section>
 
       {/* 라운드, 보더, 그림자 */}
-      <section className="guide-section">
+      <section id="border-shadow" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">라운드, 보더, 그림자</SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="guide-card">
@@ -168,14 +213,14 @@ export default function DesignGuide() {
               <li>sm: 0 1px 2px rgba(0,0,0,0.05)</li>
               <li>md: 0 4px 12px rgba(0,0,0,0.08)</li>
               <li>lg: 0 8px 24px rgba(0,0,0,0.1)</li>
-              <li>사용 원칙: 정보 위계 구분에만 사용, 장식적 사용 금지</li>
+              <li>사용 원칙: 정보 위계 구분에만 사용</li>
             </ul>
           </div>
         </div>
       </section>
 
       {/* 사진 스타일 가이드 */}
-      <section className="guide-section">
+      <section id="photo" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">사진 & 이미지 스타일 가이드</SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="guide-card">
@@ -185,7 +230,7 @@ export default function DesignGuide() {
               <li>• 깔끔한 배경, 자연스러운 표정</li>
               <li>• 과도한 보정 금지</li>
               <li>• 가운/유니폼 착용 자연스러운 모습</li>
-              <li>• 비율: 3:4 또는 1:1</li>
+              <li>• <span className="guide-badge-info text-[10px]">필수</span> 비율: 3:4 또는 1:1</li>
             </ul>
           </div>
           <div className="guide-card">
@@ -195,7 +240,7 @@ export default function DesignGuide() {
               <li>• 밝고 청결한 인상</li>
               <li>• 과시적 연출 금지</li>
               <li>• 환자 동선이 느껴지는 구도</li>
-              <li>• 비율: 16:9 또는 4:3</li>
+              <li>• <span className="guide-badge-info text-[10px]">필수</span> 비율: 16:9 또는 4:3</li>
             </ul>
           </div>
           <div className="guide-card">
@@ -203,7 +248,7 @@ export default function DesignGuide() {
             <ul className="text-sm space-y-1 text-muted-foreground">
               <li>• 실제 보유 장비만 촬영</li>
               <li>• 용도 설명과 함께 배치</li>
-              <li>• 장비 나열식 과시 금지</li>
+              <li>• <span className="guide-badge-warning text-[10px]">금지</span> 장비 나열식 과시</li>
             </ul>
           </div>
           <div className="guide-card">
@@ -212,14 +257,14 @@ export default function DesignGuide() {
               <li>• 라인 아이콘 스타일 통일</li>
               <li>• 단색 또는 2색 이내</li>
               <li>• 일러스트는 정보 보조 목적에 한해 사용</li>
-              <li>• 과장된 캐릭터/이모지 스타일 지양</li>
+              <li>• <span className="guide-badge-warning text-[10px]">금지</span> 과장된 캐릭터/이모지 스타일</li>
             </ul>
           </div>
         </div>
       </section>
 
       {/* 접근성 */}
-      <section className="guide-section">
+      <section id="a11y" className="guide-section scroll-mt-16">
         <SectionHeading tag="h2">접근성 & 가독성 원칙</SectionHeading>
         <div className="guide-notice-info">
           <ul className="space-y-2 text-sm">
@@ -234,8 +279,8 @@ export default function DesignGuide() {
       </section>
 
       {/* 금지 시각 표현 */}
-      <section className="guide-section">
-        <SectionHeading tag="h2" badge={<span className="guide-badge-warning">금지</span>}>
+      <section id="forbidden" className="guide-section scroll-mt-16">
+        <SectionHeading tag="h2" badge={<span className="guide-badge-emergency">금지</span>}>
           금지해야 할 시각 표현
         </SectionHeading>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
