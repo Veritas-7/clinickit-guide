@@ -67,7 +67,7 @@ export function GuideSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>제작 도구</SidebarGroupLabel>
+          <SidebarGroupLabel>{currentConfig.nameShort} 제작 도구</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>{renderItems(toolItems)}</SidebarMenu>
           </SidebarGroupContent>

@@ -320,6 +320,11 @@ export default function UiGuide() {
         </ul>
       </div>
 
+      <PageToc items={[
+        { id: "quick-ref", label: "컴포넌트 빠른 참조표" },
+        { id: "demos", label: "컴포넌트 상세" },
+      ]} />
+
       {/* Quick reference table */}
       <section id="quick-ref" className="guide-section">
         <SectionHeading tag="h2" sub="전체 컴포넌트의 필수 여부, 전환 영향도, 컴플라이언스 여부를 한눈에 확인">

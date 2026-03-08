@@ -37,7 +37,7 @@ export function CommandSearch() {
   const tools = navigationItems.filter(i => i.group === "tool");
 
   const buildSearchValue = (item: typeof navigationItems[0]) =>
-    [item.title, item.label, item.description, ...item.keywords, ...item.searchIntent].join(" ");
+    [item.label, item.title, item.description, ...item.keywords, ...item.searchIntent].join(" ").toLowerCase();
 
   return (
     <>
