@@ -1,13 +1,12 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { routeMeta, BASE_URL, SITE_NAME } from "@/data/seoConfig";
+import { routeMeta, fallbackMeta, BASE_URL, SITE_NAME, DEFAULT_OG_IMAGE } from "@/data/seoConfig";
 
 export function usePageMeta() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const meta = routeMeta[pathname];
-    if (!meta) return;
+    const meta = routeMeta[pathname] || fallbackMeta;
 
     // Title
     document.title = meta.title;
@@ -26,6 +25,14 @@ export function usePageMeta() {
     // Meta description
     setMeta("name", "description", meta.description);
 
+    // Robots
+    if (meta.noindex) {
+      setMeta("name", "robots", "noindex, nofollow");
+    } else {
+      const robotsEl = document.querySelector('meta[name="robots"]');
+      if (robotsEl) robotsEl.remove();
+    }
+
     // Canonical
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonical) {
@@ -35,17 +42,23 @@ export function usePageMeta() {
     }
     canonical.setAttribute("href", `${BASE_URL}${pathname === "/" ? "" : pathname}`);
 
+    const fullUrl = `${BASE_URL}${pathname === "/" ? "" : pathname}`;
+    const ogImage = meta.ogImage || DEFAULT_OG_IMAGE;
+    const ogImageUrl = ogImage.startsWith("http") ? ogImage : `${BASE_URL}${ogImage}`;
+
     // Open Graph
     setMeta("property", "og:title", meta.ogTitle || meta.title);
     setMeta("property", "og:description", meta.ogDescription || meta.description);
     setMeta("property", "og:type", meta.ogType || "website");
-    setMeta("property", "og:url", `${BASE_URL}${pathname === "/" ? "" : pathname}`);
+    setMeta("property", "og:url", fullUrl);
     setMeta("property", "og:site_name", SITE_NAME);
+    setMeta("property", "og:image", ogImageUrl);
 
     // Twitter
     setMeta("name", "twitter:card", "summary_large_image");
     setMeta("name", "twitter:title", meta.ogTitle || meta.title);
     setMeta("name", "twitter:description", meta.ogDescription || meta.description);
+    setMeta("name", "twitter:image", ogImageUrl);
 
     // JSON-LD
     const existingLd = document.querySelector('script[data-page-jsonld]');

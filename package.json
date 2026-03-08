@@ -1,7 +1,8 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "medical-website-guide-system",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.1.0",
+  "description": "병원/의원 웹사이트 제작 가이드 및 블루프린트 생성 시스템",
   "type": "module",
   "scripts": {
     "dev": "vite",

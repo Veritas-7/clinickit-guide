@@ -1,73 +1,67 @@
-# Welcome to your Lovable project
+# 병원/의원 웹사이트 제작 가이드 시스템
 
-## Project info
+병원·의원 업종 고객사 프로젝트를 빠르고 일관성 있게 제작하기 위한 **내부용 가이드 + 제작 시스템**.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## 주요 기능
 
-## How can I edit this code?
+- **가이드 사이트**: 디자인/UI/UX/콘텐츠/컴플라이언스/SEO 가이드 통합
+- **고객사 브리프 도구**: JSON 내보내기/불러오기, 예시 데이터, 필수 항목 검증
+- **사이트 블루프린트 생성기**: 브리프 기반 공개용 사이트 구조, CTA, SEO, Lovable 프롬프트 자동 도출
+- **구현 규칙 엔진**: 브리프 조건별 동적 레이아웃/CTA/블록 분기
+- **블록 기반 페이지 템플릿**: 필수/선택/조건부/금지 블록 시스템
+- **실무 체크리스트**: 디자인, UI, UX, 콘텐츠, 컴플라이언스, SEO QA
 
-There are several ways of editing your application.
+## 기술 스택
 
-**Use Lovable**
+- **React 18** + **TypeScript**
+- **Vite** (빌드)
+- **Tailwind CSS** (디자인 시스템)
+- **shadcn/ui** (컴포넌트)
+- **React Router** (클라이언트 라우팅)
+- **Vitest** + **Testing Library** (테스트)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 시작하기
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 빌드
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run build
+```
 
-**Use GitHub Codespaces**
+## 테스트
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+npm test          # 단일 실행
+npm run test:watch # 워치 모드
+```
 
-## What technologies are used for this project?
+## 프로젝트 구조
 
-This project is built with:
+```
+src/
+├── components/     # 재사용 컴포넌트
+├── data/           # 업종별 데이터/규칙 레이어
+│   ├── industryConfig.ts
+│   ├── seoConfig.ts
+│   ├── templateBlueprints.ts
+│   ├── complianceRules.ts
+│   ├── implementationRules.ts
+│   ├── clientBriefFields.ts
+│   └── uiComponentDefinitions.ts
+├── hooks/          # 커스텀 훅 (usePageMeta 등)
+├── pages/          # 라우트별 페이지
+└── lib/            # 유틸리티
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 확장
 
-## How can I deploy this project?
+업종 데이터(`src/data/`)만 교체하면 소아과, 정형외과, 검진센터, 치과, 한의원 등으로 분기 가능합니다.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## 라이선스
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+내부용 프로젝트

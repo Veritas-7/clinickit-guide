@@ -1,6 +1,7 @@
 // 라우트별 SEO 메타데이터 설정
 export const BASE_URL = "https://medical-guide.example.com";
 export const SITE_NAME = "병원/의원 웹사이트 제작 가이드";
+export const DEFAULT_OG_IMAGE = "/og-image.png";
 
 export interface RouteMeta {
   title: string;
@@ -8,7 +9,9 @@ export interface RouteMeta {
   ogTitle?: string;
   ogDescription?: string;
   ogType?: string;
+  ogImage?: string;
   keywords?: string[];
+  noindex?: boolean;
   jsonLd?: Record<string, unknown>;
 }
 
@@ -32,7 +35,7 @@ export const routeMeta: Record<string, RouteMeta> = {
   },
   "/design-guide": {
     title: "디자인 가이드 | 병원/의원 디자인 시스템",
-    description: "병원/의원 업종에 최적화된 컬러, 타이포그래피, 간격, 이미지, 접근성 디자인 시스템. 신뢰감 있는 의료기관 웹사이트 디자인 토큰.",
+    description: "병원/의원 업종에 최적화된 컬러, 타이포그래피, 간격, 이미지, 접근성 디자인 시스템.",
     keywords: ["병원 디자인 시스템", "의료기관 컬러 토큰", "의원 타이포그래피"],
   },
   "/ui-guide": {
@@ -47,44 +50,51 @@ export const routeMeta: Record<string, RouteMeta> = {
   },
   "/page-templates": {
     title: "페이지 템플릿 | 병원/의원 홈페이지 블록 시스템",
-    description: "병원/의원 홈페이지 제작을 위한 페이지별 블록 템플릿. 필수/선택/조건부 블록, CTA, 신뢰 요소, 모바일 축약 규칙 포함.",
-    keywords: ["병원 페이지 템플릿", "의원 홈페이지 구조", "의료기관 와이어프레임"],
+    description: "병원/의원 홈페이지 제작을 위한 페이지별 블록 템플릿. 필수/선택/조건부 블록, CTA, 신뢰 요소 포함.",
+    keywords: ["병원 페이지 템플릿", "의원 홈페이지 구조"],
   },
   "/content-guide": {
     title: "콘텐츠 가이드 | 병원/의원 카피라이팅",
-    description: "병원/의원 웹사이트의 카피 톤, 문장 템플릿, CTA 문구, 금지 표현. 신뢰를 높이고 법적 리스크를 줄이는 콘텐츠 작성 기준.",
-    keywords: ["병원 카피라이팅", "의원 콘텐츠", "의료기관 문장 템플릿"],
+    description: "병원/의원 웹사이트의 카피 톤, 문장 템플릿, CTA 문구, 금지 표현. 신뢰를 높이고 법적 리스크를 줄이는 기준.",
+    keywords: ["병원 카피라이팅", "의원 콘텐츠"],
   },
   "/compliance-guide": {
     title: "컴플라이언스 가이드 | 병원/의원 법률 검토 기준",
-    description: "병원/의원 웹사이트의 법률/광고 검토 포인트. 의료진 정보, 진료 카피, 후기, 비급여, 이벤트 등 영역별 검토 체계.",
-    keywords: ["의료광고 심의", "병원 컴플라이언스", "의원 법률 검토"],
+    description: "병원/의원 웹사이트의 법률/광고 검토 포인트. 의료진 정보, 진료 카피, 후기, 비급여, 이벤트 등 검토 체계.",
+    keywords: ["의료광고 심의", "병원 컴플라이언스"],
   },
   "/seo-geo": {
     title: "SEO/GEO 가이드 | 병원/의원 검색 최적화",
     description: "병원/의원 사이트의 메타 데이터, URL 구조, 구조화 데이터, 로컬 SEO, 지역 기반 검색 최적화 전략.",
-    keywords: ["병원 SEO", "의원 로컬 SEO", "의료기관 구조화 데이터"],
+    keywords: ["병원 SEO", "의원 로컬 SEO"],
   },
   "/checklist": {
     title: "실무 체크리스트 | 병원/의원 홈페이지 QA",
-    description: "병원/의원 웹사이트 제작 전/후 실무 체크리스트. 디자인, UI, UX, 모바일, 콘텐츠, 컴플라이언스, SEO, 런칭 점검.",
-    keywords: ["병원 홈페이지 체크리스트", "의원 QA", "의료기관 런칭 점검"],
+    description: "병원/의원 웹사이트 제작 전/후 실무 체크리스트. 디자인, UI, UX, 콘텐츠, 컴플라이언스, SEO 점검.",
+    keywords: ["병원 홈페이지 체크리스트", "의원 QA"],
   },
   "/client-brief": {
     title: "고객사 브리프 | 병원/의원 프로젝트 정보 수집",
-    description: "병원/의원 고객사의 기본 정보, 진료과목, 브랜드 톤, 필수 페이지 등을 체계적으로 정리하는 브리프 도구.",
-    keywords: ["병원 브리프", "의원 프로젝트 수집", "의료기관 요구사항"],
+    description: "병원/의원 고객사의 기본 정보를 체계적으로 정리하는 브리프 도구. JSON 내보내기, 예시 데이터 자동 채우기 지원.",
+    keywords: ["병원 브리프", "의원 프로젝트"],
   },
   "/site-blueprint": {
-    title: "사이트 블루프린트 | 병원/의원 구조 설계",
-    description: "고객사 브리프 기반으로 공개용 병원/의원 사이트의 추천 구조, 페이지, CTA, SEO 전략을 자동 도출합니다.",
-    keywords: ["병원 사이트 구조", "의원 블루프린트", "의료기관 IA"],
+    title: "사이트 블루프린트 | 병원/의원 구조 자동 설계",
+    description: "고객사 브리프 기반으로 공개용 병원/의원 사이트의 페이지 구조, CTA, SEO, Lovable 프롬프트를 자동 도출합니다.",
+    keywords: ["병원 사이트 구조", "의원 블루프린트"],
   },
   "/implementation-rules": {
     title: "구현 규칙 | 병원/의원 제작 실무 기준",
-    description: "병원/의원 사이트 제작 시 조건별 템플릿 선택, CTA 우선순위, 레이아웃 분기, 축소 구조 등 실무 구현 규칙.",
-    keywords: ["병원 제작 규칙", "의원 구현 가이드", "의료기관 분기 로직"],
+    description: "브리프 기반 조건별 템플릿 선택, CTA 우선순위, 레이아웃 분기, 축소 구조 등 동적 구현 규칙 엔진.",
+    keywords: ["병원 제작 규칙", "의원 구현 가이드"],
   },
+};
+
+// 404/기타 페이지용 fallback
+export const fallbackMeta: RouteMeta = {
+  title: "페이지를 찾을 수 없습니다 | 병원/의원 웹사이트 제작 가이드",
+  description: "요청하신 페이지를 찾을 수 없습니다.",
+  noindex: true,
 };
 
 // JSON-LD 템플릿들 (공개용 사이트에서 사용)
